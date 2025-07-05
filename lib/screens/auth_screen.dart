@@ -6,6 +6,10 @@ import 'package:zeropoint/screens/MenuPage.dart';
 import 'package:zeropoint/_core/Config.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
+// 1. Importar as bibliotecas necessárias para criptografia
+import 'dart:convert'; // Para converter a senha em bytes
+import 'package:crypto/crypto.dart'; // Para o algoritmo SHA-256
+
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -23,6 +27,16 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final authService = AuthService();
+
+  // 2. Função para criar o hash da senha
+  String _hashPassword(String password) {
+    // Converte a senha em uma lista de bytes usando o padrão UTF-8
+    final bytes = utf8.encode(password);
+    // Aplica o algoritmo SHA-256
+    final digest = sha256.convert(bytes);
+    // Retorna o resultado como uma string hexadecimal
+    return digest.toString();
+  }
 
   InputDecoration inputDecoration(String label) => InputDecoration(
     labelText: label,
@@ -144,20 +158,19 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _entrarUsuario() async {
+    // 3. Criptografar a senha antes de enviar
+    String senhaOriginal = _senhaController.text;
+    String senhaHasheada = _hashPassword(senhaOriginal);
+
     final login = await authService.entrarUsuario(
-        context: context, email: _emailController.text, senha: _senhaController.text);
+        context: context, email: _emailController.text, senha: senhaHasheada);
+
     if (login == "s") Navigator.push(context, MaterialPageRoute(builder: (_) => MenuPage()));
     else showSnackBar(context: context, mensagem: login ?? "Erro ao entrar.");
   }
 
   void _criarUsuario() async {
+    // Lembre-se de aplicar a mesma lógica de hashing aqui ao implementar o cadastro!
     print("object");
-    // final cadastro = await authService.cadastrarUsuario(
-    //     context: context,
-    //     email: _emailController.text,
-    //     senha: _senhaController.text,
-    //     nome: _nomeController.text);
-    // if (cadastro == "s") setState(() => isEntrando = true);
-    // showSnackBar(context: context, mensagem: cadastro ?? "Erro ao cadastrar.");
   }
 }

@@ -2,7 +2,7 @@ class Config {
   /// -> PRODUCAO
   //static const String apiUrl = 'https://realpython-example-app-ncpl3-ebc62660fc8f.herokuapp.com';
   /// -> HOMOLOGACAO
-  static const String apiUrl = 'http://127.0.0.1:5000';
+  static const String apiUrl = 'http://127.0.0.1:5001';
 
 
 
@@ -19,12 +19,12 @@ class Config {
   // static const String logoAzul = 'assets/imagens/cropped-Pitec-logo.png';
 
 
-  static const double logoWidthPrincipal  = 266.51; // Ajuste o tamanho da imagem
-  static const double logoHeightPrincipal = 200;
-  static const double logoWidth = 133.26; // Ajuste o tamanho da imagem
-  static const double logoHeight = 100;
-  static const String logoBranca = 'assets/imagens/biomedical-logo-branca.png';
-  static const String logoAzul = 'assets/imagens/biomedical-logo-azul.png';
+  static const double logoWidthPrincipal  = 383; // Ajuste o tamanho da imagem
+  static const double logoHeightPrincipal = 148;
+  static const double logoWidth = 383; // Ajuste o tamanho da imagem
+  static const double logoHeight = 148;
+  static const String logoBranca = 'images/AMRTEC.png';
+  static const String logoAzul = 'images/AMRTEC.png';
 
   /// -> NOME DA APLICACAO
   static const String nomeDaAplicacao = 'Zero Point';
