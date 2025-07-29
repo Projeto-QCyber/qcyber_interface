@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:zeropoint/_core/Config.dart';
 import 'package:zeropoint/objetos/kpi_summary.dart';
 import 'package:zeropoint/objetos/paginated_analyses.dart';
 
 class DashboardService {
-  final String _baseUrl = "http://localhost:5001/api";
+  final String _baseUrl = "${Config.apiUrl}/api-interface";
 
   /// Busca os KPIs (Métricas Chave) da API, com filtro de data opcional.
   Future<KpiSummary> fetchKpis({DateTime? startDate, DateTime? endDate}) async {

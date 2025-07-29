@@ -3,6 +3,7 @@ class Config {
   //static const String apiUrl = 'https://realpython-example-app-ncpl3-ebc62660fc8f.herokuapp.com';
   /// -> HOMOLOGACAO
   static const String apiUrl = 'http://127.0.0.1:5001';
+  // static const String apiUrl = 'http://127.0.0.1:5001';
 
 
 

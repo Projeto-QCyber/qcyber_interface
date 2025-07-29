@@ -23,7 +23,7 @@ class AuthService {
     //return "s";
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/api/login'),
+        Uri.parse('${Config.apiUrl}/api-interface/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'senha': senha}),
       );

@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:zeropoint/_core/Config.dart';
 import 'package:zeropoint/objetos/dispositivo.dart';
 
 class DispositivoService {
-  final String _baseUrl = "http://localhost:5001/api/dispositivos";
+  final String _baseUrl = "${Config.apiUrl}/api-interface/dispositivos";
 
   Future<List<Dispositivo>> fetchDispositivos() async {
     try {
