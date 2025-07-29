@@ -124,13 +124,76 @@ class MyColors {
 
 
   static const Color fundo_app1 = const Color.fromRGBO(255, 255, 255, 1.0);
-  //static const Color fundo_app1 = const Color.fromRGBO(218, 234, 246, 1.0);
 
-  // static const Color principal_app1 = const Color.fromRGBO(30, 115, 190, 1.0);
   static const Color principal_app1 = const Color.fromRGBO(33, 34, 93, 1.0);
 
-  //static const Color principal_app1 = const Color.fromRGBO(40, 68, 149, 1.0);
   static const Color destaque_app1 = const Color.fromRGBO(23, 50, 50, 1.0);
-  //static const Color destaque_app1 = const Color.fromRGBO(23, 40, 87, 1.0);
+
+
+  // --- Cores Primárias (Branding) ---
+
+  /// Cor Principal: Azul escuro, base da identidade visual.
+  /// Usada para AppBars, botões principais e fundos de seções importantes.
+  /// HEX: #21225D
+  static const Color primary_qcyber = Color(0xFF21225D);
+
+  /// Cor de Destaque Principal: Ciano vibrante.
+  /// Usada para elementos interativos, links, e como cor principal em gráficos.
+  /// HEX: #00E5FF
+  static const Color accent_qcyber = Color(0xFF00E5FF);
+
+  // --- Cores Neutras (UI Base) ---
+
+  /// Fundo Principal: Cinza muito claro, para reduzir o cansaço visual.
+  /// HEX: #F4F7FC
+  static const Color background_qcyber = Color(0xFFF4F7FC);
+
+  /// Fundo de Cards: Branco puro, para destacar os painéis de conteúdo.
+  /// HEX: #FFFFFF
+  static const Color card_qcyber = Color(0xFFFFFFFF);
+
+  /// Texto Principal: Cinza escuro, para máxima legibilidade.
+  /// HEX: #1A202C
+  static const Color textPrimary_qcyber = Color(0xFF1A202C);
+
+  /// Texto Secundário: Cinza médio, para rótulos e descrições.
+  /// HEX: #718096
+  static const Color textSecondary_qcyber = Color(0xFF718096);
+
+  /// Texto sobre fundos escuros (como botões primários).
+  static const Color textOnPrimary_qcyber = Colors.white;
+
+  /// Bordas e Divisórias: Cinza claro.
+  /// HEX: #E2E8F0
+  static const Color border_qcyber = Color(0xFFE2E8F0);
+
+  // --- Cores para Gráficos (Data Visualization) ---
+  // Um conjunto de cores distintas que funcionam bem juntas.
+
+  /// Cor 1 para Gráficos (a principal).
+  static const Color chart1_qcyber = accent_qcyber; // Ciano
+  /// Cor 2 para Gráficos.
+  static const Color chart2_qcyber = Color(0xFF805AD5); // Roxo
+  /// Cor 3 para Gráficos.
+  static const Color chart3_qcyber = Color(0xFFED64A6); // Rosa
+  /// Cor 4 para Gráficos.
+  static const Color chart4_qcyber = Color(0xFF319795); // Verde-azulado
+
+  // --- Cores Semânticas (Status e Feedback) ---
+
+  /// Sucesso: Verde.
+  /// Para mensagens de sucesso, dados positivos, etc.
+  /// HEX: #38A169
+  static const Color success_qcyber = Color(0xFF38A169);
+
+  /// Erro/Alerta: Vermelho.
+  /// Para mensagens de erro, dados críticos, etc.
+  /// HEX: #E53E3E
+  static const Color error_qcyber = Color(0xFFE53E3E);
+
+  /// Aviso: Âmbar/Amarelo.
+  /// Para avisos, dados que requerem atenção, etc.
+  /// HEX: #D69E2E
+  static const Color warning_qcyber = Color(0xFFD69E2E);
 
 }
