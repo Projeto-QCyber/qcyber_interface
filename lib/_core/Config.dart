@@ -1,14 +1,8 @@
 class Config {
   /// -> PRODUCAO
-  //static const String apiUrl = 'https://realpython-example-app-ncpl3-ebc62660fc8f.herokuapp.com';
-  /// -> HOMOLOGACAO
+  //static const String apiUrl = '';
+  /// -> DEV
   static const String apiUrl = 'http://127.0.0.1:5001';
-  // static const String apiUrl = 'http://127.0.0.1:5001';
-
-
-
-  /// -> HOMOLOGACAO
-  static const String apiIa = 'http://127.0.0.1:8000';
 
 
   /// -> LOGO DO SISTEMA
