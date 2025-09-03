@@ -1,80 +1,98 @@
-// Código suprimido
-
-import 'dart:async';
 import 'dart:convert';
-
-
-import 'package:zeropoint/objetos/UsuariosLogados.dart';
-import 'package:flutter/cupertino.dart';
-
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'package:zeropoint/_core/Config.dart';
+import 'package:zeropoint/_core/config.dart'; // Mantido do seu projeto original
 
 class AuthService {
+  // Nota: O método antigo 'entrarUsuario' foi removido e substituído por este.
+  // Este método retorna um Map, exatamente como o 'auth_screen.dart' espera.
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    // O endpoint de login agora é '/login/token' como definido no login_router.py.
+    final url = Uri.parse('${Config.apiUrl}/login/token');
 
-  // Controlador de stream para emitir eventos de autenticação
-  final _authController = StreamController<bool>();
-
-  // Stream para ouvir as alterações de autenticação
-  Stream<bool> get authChanges => _authController.stream;
-
-  Future<String?> entrarUsuario({required BuildContext context, required String email, required String senha}) async {
-    //return "s";
     try {
+      // O FastAPI com OAuth2PasswordRequestForm espera um 'Content-Type'
+      // do tipo 'application/x-www-form-urlencoded'.
+      // O pacote http do Dart faz isso automaticamente quando passamos um Map para o 'body'.
+      // Os campos devem ser 'username' e 'password'.
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/api-interface/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'senha': senha}),
+        url,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        // O corpo da requisição envia o e-mail no campo 'username'.
+        body: {
+          'username': email,
+          'password': password,
+        },
       );
-      //print(response.body);
+
       if (response.statusCode == 200) {
+        // Sucesso! A API retornou um token.
+        final data = json.decode(response.body);
+        final token = data['access_token']; // O schema de resposta é {"access_token": "...", "token_type": "bearer"}.
 
-        // Login bem-sucedido
-        Map<String, dynamic> data = json.decode(response.body);
+        print('Login bem-sucedido. Token recebido: $token');
 
-        // Extrair o ID e o email do usuário
-        String id = data['usuario_Id'];
-        String userEmail = data['usuario_email'];
+        // TODO: Salvar o token de forma segura (ex: usando shared_preferences)
+        // Por exemplo:
+        // final prefs = await SharedPreferences.getInstance();
+        // await prefs.setString('jwt_token', token);
 
-        print('ID do usuário: $id');
-        print('Email do usuário: $userEmail');
-
-        // Atualize o provider com os novos dados
-
-        Provider.of<UsuariosLogados>(context, listen: false).atualizarUsuarioLogado(int.parse(id), userEmail);
-
-
-        // Login bem-sucedido
-        return "s";
-      } else if (response.statusCode == 401) {
-        // Credenciais inválidas
-        return 'Credenciais inválidas';
+        return {'success': true, 'token': token};
       } else {
-        // Outro erro
-        print(response.body);
-        return 'Erro durante a autenticação';
+        // Trata erros de autenticação ou outros erros do servidor.
+        final errorData = json.decode(response.body);
+        // A API FastAPI retorna o erro no campo 'detail'.
+        final errorMessage = errorData['detail'] ?? 'Erro desconhecido ao tentar fazer login.';
+        return {'success': false, 'error': errorMessage};
       }
     } catch (e) {
-      print(e);
-      // Lidar com erros de conexão ou outros
-      return 'Erro de conexão: $e';
+      // Trata erros de conexão (ex: API offline).
+      print('Erro de conexão: $e');
+      return {'success': false, 'error': 'Não foi possível conectar ao servidor.'};
     }
   }
 
 
-  // Método para fazer logout
-  Future<void> signOut() async {
-    // Sua lógica de logout aqui
-    // ...
+  Future<Map<String, dynamic>> register({
+    required String nome,
+    required String email,
+    required String password,
+  }) async {
+    // O novo endpoint que criamos na API
+    final url = Uri.parse('${Config.apiUrl}/usuarios/');
 
-    // Emite false no stream indicando que o usuário não está autenticado
-    _authController.add(false);
-  }
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        // Para o registro, enviamos os dados como JSON
+        body: jsonEncode({
+          'nome': nome,
+          'email': email,
+          'senha': password,
+        }),
+      );
 
-  // Fechar o controlador de stream ao finalizar
-  void dispose() {
-    _authController.close();
+      if (response.statusCode == 201) { // 201 Created
+        // Usuário criado com sucesso!
+        return {
+          'success': true,
+          'message': 'Conta criada com sucesso! Por favor, faça o login.'
+        };
+      } else {
+        // Trata erros de registro (ex: e-mail duplicado)
+        final errorData = json.decode(response.body);
+        final errorMessage = errorData['detail'] ?? 'Erro desconhecido ao tentar se registrar.';
+        return {'success': false, 'error': errorMessage};
+      }
+    } catch (e) {
+      // Trata erros de conexão
+      print('Erro de conexão no registro: $e');
+      return {'success': false, 'error': 'Não foi possível conectar ao servidor.'};
+    }
   }
 
 }
