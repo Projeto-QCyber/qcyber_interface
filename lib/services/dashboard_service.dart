@@ -1,70 +1,39 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:zeropoint/_core/Config.dart';
-import 'package:zeropoint/objetos/kpi_summary.dart';
-import 'package:zeropoint/objetos/paginated_analyses.dart';
+import 'package:zeropoint/_core/config.dart';
+import 'package:zeropoint/objetos/dashboard_summary.dart';
 
 class DashboardService {
-  final String _baseUrl = "${Config.apiUrl}/api-interface";
-
-  /// Busca os KPIs (Métricas Chave) da API, com filtro de data opcional.
-  Future<KpiSummary> fetchKpis({DateTime? startDate, DateTime? endDate}) async {
-    try {
-      // Constrói a URL com os parâmetros de data, se existirem
-      final uri = Uri.parse("$_baseUrl/dashboard-kpis").replace(
-        queryParameters: _buildDateQueryParams(startDate, endDate),
-      );
-
-      final response = await http.get(uri);
-      if (response.statusCode == 200) {
-        return KpiSummary.fromJson(jsonDecode(response.body));
-      } else {
-        throw Exception('Falha ao carregar KPIs da API');
-      }
-    } catch (e) {
-      throw Exception('Erro de conexão ao buscar KPIs: $e');
-    }
-  }
-
-  /// Busca uma lista paginada de análises da API, com suporte a filtros.
-  Future<PaginatedAnalyses> fetchAnalises({
-    int page = 1,
-    int limit = 10,
-    String filter = 'all',
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
-    try {
-      // Constrói a URL com todos os parâmetros
-      final queryParams = _buildDateQueryParams(startDate, endDate);
-      queryParams['page'] = page.toString();
-      queryParams['limit'] = limit.toString();
-      queryParams['filter'] = filter;
-
-      final uri = Uri.parse("$_baseUrl/analises").replace(queryParameters: queryParams);
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        return PaginatedAnalyses.fromJson(jsonDecode(response.body));
-      } else {
-        throw Exception('Falha ao carregar a lista de análises');
-      }
-    } catch (e) {
-      throw Exception('Erro de conexão ao buscar análises: $e');
-    }
-  }
-
-  /// Função auxiliar para criar os parâmetros de data no formato YYYY-MM-DD.
-  Map<String, String> _buildDateQueryParams(DateTime? startDate, DateTime? endDate) {
-    final Map<String, String> params = {};
-    final formatter = DateFormat('yyyy-MM-dd');
+  Future<DashboardSummary> fetchDashboardSummary({DateTime? startDate, DateTime? endDate}) async {
+    // Constrói a URI com os parâmetros de data, se existirem
+    final Map<String, String> queryParameters = {};
     if (startDate != null) {
-      params['start_date'] = formatter.format(startDate);
+      queryParameters['start_date'] = startDate.toIso8601String();
     }
     if (endDate != null) {
-      params['end_date'] = formatter.format(endDate);
+      queryParameters['end_date'] = endDate.toIso8601String();
     }
-    return params;
+
+    final uri = Uri.parse('${Config.apiUrl}/dashboard/summary').replace(queryParameters: queryParameters);
+
+    // IMPORTANTE: Adicione o token de autenticação aqui!
+    // TODO: Obter o token JWT salvo (ex: SharedPreferences) e adicioná-lo ao header
+    final String? token = "SEU_TOKEN_JWT_AQUI"; // Substitua pela lógica real de obtenção do token
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Usa a função gerada para fazer o parse do JSON de forma segura
+      return dashboardSummaryFromJson(response.body);
+    } else {
+      // Lança uma exceção se a chamada falhar
+      throw Exception('Falha ao carregar os dados do dashboard. Status: ${response.statusCode}');
+    }
   }
 }

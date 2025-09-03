@@ -191,6 +191,8 @@ class MyColors {
   /// HEX: #E53E3E
   static const Color error_qcyber = Color(0xFFE53E3E);
 
+  static const Color orange_qcyber = Color(0xFFFF8000);
+
   /// Aviso: Âmbar/Amarelo.
   /// Para avisos, dados que requerem atenção, etc.
   /// HEX: #D69E2E
