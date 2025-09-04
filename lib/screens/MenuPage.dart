@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
@@ -8,6 +7,14 @@ import 'package:zeropoint/objetos/dashboard_summary.dart';
 import 'package:zeropoint/screens/ameacas_screen.dart';
 import 'package:zeropoint/screens/dispositivos_screen.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
+
+// Imports para os novos widgets
+import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
+import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_riscos.dart';
+import 'package:zeropoint/screens/widgets/dashboard_widgets/data_table_section.dart';
+import 'package:zeropoint/screens/widgets/dashboard_widgets/kpi_section.dart';
+import 'package:zeropoint/screens/widgets/dashboard_widgets/line_chart_detections.dart';
+import 'package:zeropoint/screens/widgets/dashboard_widgets/pie_chart_ataques.dart';
 
 enum DateRangePreset { last24h, last7d, last30d, custom }
 
@@ -95,7 +102,6 @@ class _MenuPageState extends State<MenuPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,23 +136,28 @@ class _MenuPageState extends State<MenuPage> {
                           children: [
                             _buildDateFilter(),
                             const SizedBox(height: 16),
-                            _buildKpiSection(dashboardData.kpis),
+                            KpiSection(kpis: dashboardData.kpis),
                             const SizedBox(height: 24),
-                            // *** LAYOUT CORRIGIDO COM TODOS OS GRÁFICOS ***
-                            _buildLineChartDetections(dashboardData.deteccoesPorHora),
+                            LineChartDetections(data: dashboardData.deteccoesPorHora),
                             const SizedBox(height: 24),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(child: _buildPieChartAtaques(dashboardData.ataquesPorTipo)),
+                                Expanded(
+                                    child: PieChartAtaques(
+                                      ataques: dashboardData.ataquesPorTipo,
+                                      touchedIndex: _touchedIndex,
+                                      onTouch: (index) => setState(() => _touchedIndex = index),
+                                    )
+                                ),
                                 const SizedBox(width: 16),
-                                Expanded(child: _buildBarChartRiscos(dashboardData.incidentesPorRisco)),
+                                Expanded(child: BarChartRiscos(data: dashboardData.incidentesPorRisco)),
                               ],
                             ),
                             const SizedBox(height: 24),
-                            _buildBarChartDispositivos(dashboardData.dispositivosAtacados),
+                            BarChartDispositivos(data: dashboardData.dispositivosAtacados),
                             const SizedBox(height: 24),
-                            _buildDataTableSection(dashboardData.ultimasDeteccoes),
+                            DataTableSection(deteccoes: dashboardData.ultimasDeteccoes),
                             const SizedBox(height: 40),
                           ],
                         ),
@@ -181,9 +192,8 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
-  // --- Widgets de Construção da UI ---
+  // --- Widgets de Construção da UI (agora são apenas helpers menores) ---
 
-  // ... (_buildDateFilter, _buildFilterChip, _buildDrawer, _buildDrawerItem, _buildKpiSection, _buildKpiCard não mudaram) ...
   Widget _buildDateFilter() {
     return Center(
       child: SingleChildScrollView(
@@ -249,6 +259,7 @@ class _MenuPageState extends State<MenuPage> {
               ],
             ),
           ),
+          _buildDrawerItem(icon: Icons.dashboard, text: "Dashboard", onTap: () { Navigator.pop(context); }),
           _buildDrawerItem(icon: Icons.devices, text: "Dispositivos", onTap: () {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (context) => const DispositivosScreen()));
@@ -257,10 +268,7 @@ class _MenuPageState extends State<MenuPage> {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (context) => const AmeacasScreen()));
           }),
-          _buildDrawerItem(icon: Icons.chat_bubble, text: "LLM (Assistente)", onTap: () { Navigator.pop(context); }),
-          _buildDrawerItem(icon: Icons.people_alt, text: "Agentes", onTap: () { Navigator.pop(context); }),
           const Divider(color: MyColors.border_qcyber),
-          _buildDrawerItem(icon: Icons.settings, text: "Configurações", onTap: () { Navigator.pop(context); }),
           _buildDrawerItem(icon: Icons.logout, text: "Sair", onTap: () { Navigator.pop(context); }),
         ],
       ),
@@ -272,328 +280,6 @@ class _MenuPageState extends State<MenuPage> {
       leading: Icon(icon, color: MyColors.textSecondary_qcyber),
       title: Text(text, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
       onTap: onTap,
-    );
-  }
-
-  Widget _buildKpiSection(Kpis kpis) {
-    return Row(
-      children: [
-        Expanded(child: _buildKpiCard('Detecções', kpis.totalDeteccoes.toString(), Icons.warning_amber, MyColors.error_qcyber)),
-        const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Ações Autom.', kpis.acoesExecutadas.toString(), Icons.shield, MyColors.primary_qcyber)),
-        const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Incidentes', kpis.incidentesCriados.toString(), Icons.assignment_late, Colors.orangeAccent)),
-        const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Dispositivos', kpis.dispositivosAtivos.toString(), Icons.computer, MyColors.primary_qcyber)),
-      ],
-    );
-  }
-
-  Widget _buildKpiCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      color: MyColors.card_qcyber,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(title, style: const TextStyle(color: MyColors.textSecondary_qcyber, fontSize: 14)),
-                Icon(icon, color: color, size: 20),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(value, style: const TextStyle(color: MyColors.textPrimary_qcyber, fontSize: 28, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Renomeado para maior clareza
-  Widget _buildPieChartAtaques(List<AtaquePorTipo> ataques) {
-    final pieColors = [ MyColors.chart1_qcyber, MyColors.chart2_qcyber, MyColors.chart3_qcyber, Colors.orangeAccent, MyColors.primary_qcyber.withOpacity(0.7) ];
-
-    return Card(
-      color: MyColors.card_qcyber,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Tipos de Ameaças", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
-            const SizedBox(height: 20),
-            if (ataques.isEmpty)
-              const Center(heightFactor: 5, child: Text('Nenhum dado.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
-            else
-              SizedBox(
-                height: 200,
-                child: PieChart(
-                  PieChartData(
-                    pieTouchData: PieTouchData(
-                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                        setState(() {
-                          if (!event.isInterestedForInteractions || pieTouchResponse == null || pieTouchResponse.touchedSection == null) { _touchedIndex = -1; return; }
-                          _touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
-                        });
-                      },
-                    ),
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                    sections: List.generate(ataques.length, (i) {
-                      final isTouched = i == _touchedIndex;
-                      final fontSize = isTouched ? 16.0 : 12.0;
-                      final radius = isTouched ? 70.0 : 60.0;
-                      final ataque = ataques[i];
-                      String displayTitle = ataque.nomeAtaque.length > 8 ? '${ataque.nomeAtaque.substring(0, 5)}..' : ataque.nomeAtaque;
-
-                      return PieChartSectionData(
-                        color: pieColors[i % pieColors.length],
-                        value: ataque.total.toDouble(),
-                        title: displayTitle.replaceAll('_', '\n'),
-                        radius: radius,
-                        titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.white, shadows: [Shadow(color: Colors.black.withOpacity(0.5), blurRadius: 2)]),
-                        badgeWidget: isTouched ? Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.8), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white.withOpacity(0.3))),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(ataque.nomeAtaque.replaceAll('_', ' '), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                              const SizedBox(height: 4),
-                              SizedBox(width: 150, child: Text(ataque.descricao, style: const TextStyle(color: Colors.white70, fontSize: 10), maxLines: 3, overflow: TextOverflow.ellipsis)),
-                            ],
-                          ),
-                        ) : null,
-                        badgePositionPercentageOffset: isTouched ? 1.05 : 0.98,
-                      );
-                    }),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // **** FUNÇÕES ADICIONADAS PARA OS NOVOS GRÁFICOS ****
-
-  Widget _buildLineChartDetections(List<DeteccoesPorHora> data) {
-    return Card(
-      color: MyColors.card_qcyber,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Volume de Detecções", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
-            const SizedBox(height: 20),
-            if (data.isEmpty)
-              const Center(heightFactor: 5, child: Text('Nenhum dado de volume para exibir.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
-            else
-              SizedBox(
-                height: 200,
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(show: false),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 28)),
-                      bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, meta) {
-                        if (value.toInt() >= data.length) return const Text('');
-                        final is24h = (data.last.hora.difference(data.first.hora).inHours <= 24);
-                        final format = is24h ? DateFormat('HH:mm') : DateFormat('dd/MM');
-                        return Text(format.format(data[value.toInt()].hora.toLocal()), style: const TextStyle(color: MyColors.textSecondary_qcyber, fontSize: 10));
-                      }, interval: (data.length / 4).ceilToDouble())),
-                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    ),
-                    borderData: FlBorderData(show: true, border: Border.all(color: MyColors.border_qcyber)),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: [ for (var i = 0; i < data.length; i++) FlSpot(i.toDouble(), data[i].total.toDouble()) ],
-                        isCurved: true,
-                        color: MyColors.chart1_qcyber,
-                        barWidth: 3,
-                        dotData: FlDotData(show: false),
-                        belowBarData: BarAreaData(show: true, color: MyColors.chart1_qcyber.withOpacity(0.2)),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBarChartDispositivos(List<DispositivosAtacados> data) {
-    return Card(
-      color: MyColors.card_qcyber,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Dispositivos Mais Atacados", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
-            const SizedBox(height: 20),
-            if (data.isEmpty)
-              const Center(heightFactor: 5, child: Text('Nenhum dispositivo atacado no período.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
-            else
-              ...data.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Row(
-                  children: [
-                    SizedBox(width: 150, child: Text(item.nomeDispositivo, overflow: TextOverflow.ellipsis, style: const TextStyle(color: MyColors.textSecondary_qcyber))),
-                    Expanded(
-                      child: LinearProgressIndicator(
-                        value: item.total / (data.first.total > 0 ? data.first.total : 1),
-                        backgroundColor: MyColors.border_qcyber,
-                        valueColor: const AlwaysStoppedAnimation<Color>(MyColors.chart2_qcyber),
-                        minHeight: 10,
-                      ),
-                    ),
-                    SizedBox(width: 50, child: Text(' ${item.total}', style: const TextStyle(color: MyColors.textPrimary_qcyber, fontWeight: FontWeight.bold))),
-                  ],
-                ),
-              )).toList(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Em screens/MenuPage.dart
-
-  Widget _buildBarChartRiscos(List<IncidentesPorRisco> data) {
-    final riskColors = {'Crítico': MyColors.error_qcyber, 'Alto': Colors.orangeAccent, 'Médio': MyColors.chart3_qcyber, 'Baixo': MyColors.primary_qcyber};
-
-    // Se não houver dados, retorna o card vazio.
-    if (data.isEmpty) {
-      return Card(
-        color: MyColors.card_qcyber,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Incidentes por Risco", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
-              const SizedBox(height: 20),
-              const Center(heightFactor: 5, child: Text('Nenhum incidente.', style: TextStyle(color: MyColors.textSecondary_qcyber))),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // --- LÓGICA ATUALIZADA PARA ESCALA DINÂMICA ---
-    // 1. Encontra o maior valor Y (o número máximo de incidentes)
-    final maxY = data.map((d) => d.total).reduce((a, b) => a > b ? a : b);
-
-    // 2. Calcula um intervalo inteligente para a escala, para ter no máximo 4 ou 5 rótulos
-    double interval = (maxY / 4).ceilToDouble();
-    if (interval < 1) interval = 1; // O intervalo mínimo deve ser 1
-
-    return Card(
-      color: MyColors.card_qcyber,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Incidentes por Risco", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 200,
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: maxY.toDouble(), // Define o valor máximo do eixo Y
-                  titlesData: FlTitlesData(
-                    // 3. ATUALIZAÇÃO DA ESCALA ESQUERDA (EIXO Y)
-                    leftTitles: AxisTitles(sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 28, // Aumenta um pouco o espaço reservado
-                      interval: interval, // Usa o intervalo calculado
-                      getTitlesWidget: (value, meta) {
-                        // Garante que apenas números inteiros sejam mostrados
-                        if (value == meta.max) return const SizedBox.shrink(); // Não mostra o último label
-                        return Text(value.toInt().toString(), style: const TextStyle(color: MyColors.textSecondary_qcyber, fontSize: 10));
-                      },
-                    )),
-                    // --- FIM DA ATUALIZAÇÃO ---
-                    bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, meta) {
-                      if (value.toInt() >= data.length) return const Text('');
-                      return Text(data[value.toInt()].nivelRisco.substring(0,3), style: const TextStyle(color: MyColors.textSecondary_qcyber, fontSize: 10));
-                    })),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  ),
-                  gridData: FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                  barGroups: List.generate(data.length, (i) => BarChartGroupData(
-                    x: i,
-                    barRods: [BarChartRodData(toY: data[i].total.toDouble(), color: riskColors[data[i].nivelRisco] ?? Colors.grey, width: 16, borderRadius: BorderRadius.zero)],
-                  )),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDataTableSection(List<UltimaDeteccao> deteccoes) {
-    return Card(
-      color: MyColors.card_qcyber,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Histórico de Detecções Recentes", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
-            const SizedBox(height: 8),
-            if(deteccoes.isEmpty)
-              const Center(heightFactor: 3, child: Text('Nenhuma detecção recente para exibir no período.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
-            else
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber),
-                  dataTextStyle: const TextStyle(color: MyColors.textSecondary_qcyber),
-                  columns: const [
-                    DataColumn(label: Text('Data/Hora')),
-                    DataColumn(label: Text('Dispositivo')),
-                    DataColumn(label: Text('Ameaça')),
-                    DataColumn(label: Text('Status')),
-                  ],
-                  rows: deteccoes.map((deteccao) => DataRow(
-                    cells: [
-                      DataCell(Text(DateFormat('dd/MM HH:mm').format(deteccao.dataDeteccao.toLocal()))),
-                      DataCell(Text(deteccao.nomeDispositivo)),
-                      DataCell(Text(deteccao.tipoAtaque)),
-                      DataCell(Text(deteccao.statusResposta)),
-                    ],
-                  )).toList(),
-                ),
-              ),
-          ],
-        ),
-      ),
     );
   }
 }
