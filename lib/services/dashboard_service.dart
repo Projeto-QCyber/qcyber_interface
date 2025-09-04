@@ -36,4 +36,75 @@ class DashboardService {
       throw Exception('Falha ao carregar os dados do dashboard. Status: ${response.statusCode}');
     }
   }
+
+  Future<List<UltimaDeteccao>> fetchDeteccoesDetails({DateTime? startDate, DateTime? endDate}) async {
+    final Map<String, String> queryParameters = {};
+    if (startDate != null) {
+      queryParameters['start_date'] = startDate.toIso8601String();
+    }
+    if (endDate != null) {
+      queryParameters['end_date'] = endDate.toIso8601String();
+    }
+
+    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/deteccoes').replace(queryParameters: queryParameters);
+
+    // TODO: Obter o token JWT salvo
+    final String? token = "SEU_TOKEN_JWT_AQUI";
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Decodifica a lista diretamente
+      final List<dynamic> body = json.decode(response.body);
+      return body.map((dynamic item) => UltimaDeteccao.fromJson(item)).toList();
+    } else {
+      throw Exception('Falha ao carregar detalhes das detecções.');
+    }
+  }
+
+
+  Future<List<AcaoDetail>> fetchAcoesDetails() async {
+    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/acoes');
+    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir pela lógica real
+
+    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    if (response.statusCode == 200) {
+      final List<dynamic> body = json.decode(response.body);
+      return body.map((dynamic item) => AcaoDetail.fromJson(item)).toList();
+    } else {
+      throw Exception('Falha ao carregar detalhes das ações.');
+    }
+  }
+
+  Future<List<IncidenteDetail>> fetchIncidentesDetails() async {
+    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/incidentes');
+    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
+
+    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    if (response.statusCode == 200) {
+      final List<dynamic> body = json.decode(response.body);
+      return body.map((dynamic item) => IncidenteDetail.fromJson(item)).toList();
+    } else {
+      throw Exception('Falha ao carregar detalhes dos incidentes.');
+    }
+  }
+
+  Future<List<DispositivoDetail>> fetchDispositivosDetails() async {
+    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/dispositivos');
+    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
+
+    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    if (response.statusCode == 200) {
+      final List<dynamic> body = json.decode(response.body);
+      return body.map((dynamic item) => DispositivoDetail.fromJson(item)).toList();
+    } else {
+      throw Exception('Falha ao carregar detalhes dos dispositivos.');
+    }
+  }
 }

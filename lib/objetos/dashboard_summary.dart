@@ -130,3 +130,43 @@ class IncidentesPorRisco {
     total: json["total"],
   );
 }
+
+class AcaoDetail {
+  final DateTime dataAcaoExecutada;
+  final String? acaoParametro;
+  final String nomeAcao;
+
+  AcaoDetail({required this.dataAcaoExecutada, this.acaoParametro, required this.nomeAcao});
+
+  factory AcaoDetail.fromJson(Map<String, dynamic> json) => AcaoDetail(
+    dataAcaoExecutada: DateTime.parse(json["data_acao_executada"]),
+    acaoParametro: json["acao_parametro"],
+    nomeAcao: json["nome_acao"],
+  );
+}
+
+class IncidenteDetail {
+  final String titulo;
+  final String nivelRisco;
+  final DateTime dataCriacao;
+
+  IncidenteDetail({required this.titulo, required this.nivelRisco, required this.dataCriacao});
+
+  factory IncidenteDetail.fromJson(Map<String, dynamic> json) => IncidenteDetail(
+    titulo: json["titulo"],
+    nivelRisco: json["nivel_risco"],
+    dataCriacao: DateTime.parse(json["data_criacao"]),
+  );
+}
+
+class DispositivoDetail {
+  final String nome;
+  final String host;
+
+  DispositivoDetail({required this.nome, required this.host});
+
+  factory DispositivoDetail.fromJson(Map<String, dynamic> json) => DispositivoDetail(
+    nome: json["nome"],
+    host: json["host"],
+  );
+}

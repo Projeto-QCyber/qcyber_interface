@@ -6,19 +6,21 @@ import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 import 'package:zeropoint/screens/ameacas_screen.dart';
 import 'package:zeropoint/screens/dispositivos_screen.dart';
-import 'package:zeropoint/screens/widgets/dialogs/connection_error_dialog.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
 
 // Imports dos widgets extraídos
-import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
-import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_riscos.dart';
-import 'package:zeropoint/screens/widgets/dashboard_widgets/data_table_section.dart';
-import 'package:zeropoint/screens/widgets/dashboard_widgets/kpi_section.dart';
-import 'package:zeropoint/screens/widgets/dashboard_widgets/line_chart_detections.dart';
-import 'package:zeropoint/screens/widgets/dashboard_widgets/pie_chart_ataques.dart';
+// import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
+import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
+import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_riscos.dart';
+import 'package:zeropoint/widgets/dashboard_widgets/data_table_section.dart';
+import 'package:zeropoint/widgets/dashboard_widgets/kpi_section.dart';
+import 'package:zeropoint/widgets/dashboard_widgets/line_chart_detections.dart';
+import 'package:zeropoint/widgets/dashboard_widgets/pie_chart_ataques.dart';
 
-// IMPORT ADICIONAL NECESSÁRIO PARA NAVEGAR PARA O LOGIN
-import 'package:zeropoint/screens/auth_screen.dart';
+// Imports dos diálogos e do nosso Controller/Handler
+import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
+import 'package:zeropoint/controllers/dashboard_action_handler.dart';
+
 
 enum DateRangePreset { last24h, last7d, last30d, custom }
 
@@ -32,7 +34,6 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   final DashboardService _dashboardService = DashboardService();
   late Future<DashboardSummary> _dashboardFuture;
-  Timer? _timer;
   int _touchedIndex = -1;
 
   DateRangePreset _selectedPreset = DateRangePreset.last24h;
@@ -43,13 +44,10 @@ class _MenuPageState extends State<MenuPage> {
   void initState() {
     super.initState();
     _fetchData();
-    // Timer desativado para não mostrar o modal de erro repetidamente
-    // _timer = Timer.periodic(const Duration(minutes: 3), (Timer t) => _fetchData());
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
   }
 
@@ -109,6 +107,12 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   Widget build(BuildContext context) {
+    // O Handler é criado aqui, com o contexto e serviço necessários
+    final actionHandler = DashboardActionHandler(
+      context: context,
+      dashboardService: _dashboardService,
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('QCyber Dashboard'),
@@ -147,7 +151,13 @@ class _MenuPageState extends State<MenuPage> {
                           children: [
                             _buildDateFilter(),
                             const SizedBox(height: 16),
-                            KpiSection(kpis: dashboardData.kpis),
+                            KpiSection(
+                              kpis: dashboardData.kpis,
+                              onDeteccoesTapped: actionHandler.showDeteccoesDetails,
+                              onAcoesTapped: actionHandler.showAcoesDetails,
+                              onIncidentesTapped: actionHandler.showIncidentesDetails,
+                              onDispositivosTapped: actionHandler.showDispositivosDetails,
+                            ),
                             const SizedBox(height: 24),
                             LineChartDetections(data: dashboardData.deteccoesPorHora),
                             const SizedBox(height: 24),
