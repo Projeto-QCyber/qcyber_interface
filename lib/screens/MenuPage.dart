@@ -6,15 +6,19 @@ import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 import 'package:zeropoint/screens/ameacas_screen.dart';
 import 'package:zeropoint/screens/dispositivos_screen.dart';
+import 'package:zeropoint/screens/widgets/dialogs/connection_error_dialog.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
 
-// Imports para os novos widgets
+// Imports dos widgets extraídos
 import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
 import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_riscos.dart';
 import 'package:zeropoint/screens/widgets/dashboard_widgets/data_table_section.dart';
 import 'package:zeropoint/screens/widgets/dashboard_widgets/kpi_section.dart';
 import 'package:zeropoint/screens/widgets/dashboard_widgets/line_chart_detections.dart';
 import 'package:zeropoint/screens/widgets/dashboard_widgets/pie_chart_ataques.dart';
+
+// IMPORT ADICIONAL NECESSÁRIO PARA NAVEGAR PARA O LOGIN
+import 'package:zeropoint/screens/auth_screen.dart';
 
 enum DateRangePreset { last24h, last7d, last30d, custom }
 
@@ -39,7 +43,8 @@ class _MenuPageState extends State<MenuPage> {
   void initState() {
     super.initState();
     _fetchData();
-    _timer = Timer.periodic(const Duration(minutes: 3), (Timer t) => _fetchData());
+    // Timer desativado para não mostrar o modal de erro repetidamente
+    // _timer = Timer.periodic(const Duration(minutes: 3), (Timer t) => _fetchData());
   }
 
   @override
@@ -122,8 +127,14 @@ class _MenuPageState extends State<MenuPage> {
               child: FutureBuilder<DashboardSummary>(
                 future: _dashboardFuture,
                 builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ConnectionErrorDialog.show(context, onTryAgain: _fetchData);
+                    });
+                    return const Center(child: Text('Tentando reconectar...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
+                  }
+
                   if (snapshot.connectionState == ConnectionState.waiting) { return const Center(child: CircularProgressIndicator()); }
-                  if (snapshot.hasError) { return Center(child: Text('Erro ao carregar dados: ${snapshot.error}', style: const TextStyle(color: MyColors.textPrimary_qcyber))); }
                   if (!snapshot.hasData) { return const Center(child: Text('Nenhum dado encontrado.', style: TextStyle(color: MyColors.textPrimary_qcyber))); }
 
                   final dashboardData = snapshot.data!;
