@@ -68,11 +68,9 @@ class DashboardService {
     }
   }
 
-
   Future<List<AcaoDetail>> fetchAcoesDetails() async {
     final uri = Uri.parse('${Config.apiUrl}/dashboard/details/acoes');
-    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir pela lógica real
-
+    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
     final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
     if (response.statusCode == 200) {
       final List<dynamic> body = json.decode(response.body);
@@ -85,7 +83,6 @@ class DashboardService {
   Future<List<IncidenteDetail>> fetchIncidentesDetails() async {
     final uri = Uri.parse('${Config.apiUrl}/dashboard/details/incidentes');
     final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
-
     final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
     if (response.statusCode == 200) {
       final List<dynamic> body = json.decode(response.body);
@@ -98,7 +95,6 @@ class DashboardService {
   Future<List<DispositivoDetail>> fetchDispositivosDetails() async {
     final uri = Uri.parse('${Config.apiUrl}/dashboard/details/dispositivos');
     final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
-
     final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
     if (response.statusCode == 200) {
       final List<dynamic> body = json.decode(response.body);

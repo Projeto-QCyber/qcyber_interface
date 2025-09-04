@@ -148,6 +148,7 @@ class AcaoDetail {
 class IncidenteDetail {
   final String titulo;
   final String nivelRisco;
+  // final String nomeDispositivo;
   final DateTime dataCriacao;
 
   IncidenteDetail({required this.titulo, required this.nivelRisco, required this.dataCriacao});

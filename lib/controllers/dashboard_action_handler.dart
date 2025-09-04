@@ -70,7 +70,7 @@ class DashboardActionHandler {
         children: details.map((acao) => ListTile(
           leading: const Icon(Icons.check_circle, color: MyColors.primary_qcyber),
           title: Text(acao.nomeAcao, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
-          subtitle: Text(acao.nomeAcao, style: const TextStyle(color: MyColors.textSecondary_qcyber)),
+          // subtitle: Text(acao.nomeAcao, style: const TextStyle(color: MyColors.textSecondary_qcyber)),
         )).toList(),
       );
     } catch (e) {
@@ -92,16 +92,54 @@ class DashboardActionHandler {
         iconColor: Colors.orangeAccent,
         children: details.map((i) => ListTile(
           title: Text(i.titulo, overflow: TextOverflow.ellipsis, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
-          subtitle: Text(i.titulo, style: const TextStyle(color: MyColors.textSecondary_qcyber)),
-          trailing: Chip(
-            label: Text(i.nivelRisco, style: const TextStyle(color: Colors.white)),
-            backgroundColor: MyColors.error_qcyber, // Ajustar cor com base no risco se necessário
+           subtitle: Text("teste", style: const TextStyle(color: MyColors.textSecondary_qcyber)),
+          // **** ATUALIZADO: Usando Container para um estilo de chip fixo ****
+          trailing: Container(
+            width: 80, // Largura fixa para padronizar (ajuste conforme necessário)
+            alignment: Alignment.center, // Centraliza o texto dentro do container
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            decoration: BoxDecoration(
+              // Cor de fundo com base no nível de risco
+              color: _getRiscoBackgroundColor(i.nivelRisco),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Text(
+              i.nivelRisco,
+              style: TextStyle(
+                // Cor do texto com base no nível de risco
+                color: _getRiscoTextColor(i.nivelRisco),
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
           ),
+          // Fim da atualização
         )).toList(),
       );
     } catch (e) {
       _hideLoadingIndicator();
       ConnectionErrorDialog.show(context, onTryAgain: showIncidentesDetails);
+    }
+  }
+
+  // **** NOVOS MÉTODOS AUXILIARES PARA CORES DO RISCO ****
+  Color _getRiscoBackgroundColor(String nivelRisco) {
+    switch (nivelRisco.toLowerCase()) {
+      case 'baixo': return Colors.green.shade100;
+      case 'medio': return Colors.orange.shade100;
+      case 'alto': return Colors.red.shade100;
+      case 'critico': return Colors.purple.shade100; // Ou outra cor para crítico
+      default: return MyColors.border_qcyber; // Cor padrão
+    }
+  }
+
+  Color _getRiscoTextColor(String nivelRisco) {
+    switch (nivelRisco.toLowerCase()) {
+      case 'baixo': return Colors.green.shade800;
+      case 'medio': return Colors.orange.shade800;
+      case 'alto': return Colors.red.shade800;
+      case 'critico': return Colors.purple.shade800;
+      default: return MyColors.textSecondary_qcyber;
     }
   }
 
