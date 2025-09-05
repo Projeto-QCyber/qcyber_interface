@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/objetos/UsuariosLogados.dart';
 import 'package:zeropoint/screens/auth_screen.dart';
+import 'package:zeropoint/services/auth_service.dart';
 
 class StatefulConnectionDialogContent extends StatefulWidget {
   final Future<void> Function() onTryAgain;
@@ -18,8 +19,10 @@ class StatefulConnectionDialogContent extends StatefulWidget {
 
 class _StatefulConnectionDialogContentState extends State<StatefulConnectionDialogContent> {
   bool _isTryingAgain = false;
-  // NOVO: Variável de estado para o processo de logout
+
   bool _isLoggingOut = false;
+
+  final AuthService _authService = AuthService();
 
   Future<void> _handleTryAgain() async {
     setState(() {
@@ -47,14 +50,9 @@ class _StatefulConnectionDialogContentState extends State<StatefulConnectionDial
     });
 
     try {
-      final usuariosLogadosProvider = Provider.of<UsuariosLogados>(context, listen: false);
-      await usuariosLogadosProvider.logout();
 
       if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const AuthScreen()),
-              (Route<dynamic> route) => false,
-        );
+        _authService.logout(context);
       }
     } catch (e) {
       // Se o logout falhar (muito raro), apenas reativamos o botão.

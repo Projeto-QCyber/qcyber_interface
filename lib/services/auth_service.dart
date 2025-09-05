@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:zeropoint/_core/config.dart';
-import 'package:zeropoint/_core/services/token_storage_service.dart'; // 1. IMPORTE O NOVO SERVIÇO
+import 'package:zeropoint/_core/services/token_storage_service.dart';
+import 'package:zeropoint/objetos/UsuariosLogados.dart';
+import 'package:zeropoint/screens/auth_screen.dart'; // 1. IMPORTE O NOVO SERVIÇO
 
 class AuthService {
   // 2. CRIE UMA INSTÂNCIA DO SERVIÇO
@@ -26,7 +30,7 @@ class AuthService {
         final data = json.decode(response.body);
         final token = data['access_token'];
 
-        print('Login bem-sucedido. Token recebido: $token');
+        // print('Login bem-sucedido. Token recebido: $token');
 
         // 3. SUBSTITUA O 'TODO' PELA CHAMADA REAL PARA SALVAR O TOKEN
         await _tokenStorage.saveToken(token);
@@ -49,7 +53,6 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    // ...nenhuma mudança necessária aqui
     final url = Uri.parse('${Config.apiUrl}/usuarios/');
     try {
       final response = await http.post(
@@ -77,5 +80,25 @@ class AuthService {
       print('Erro de conexão no registro: $e');
       return {'success': false, 'error': 'Não foi possível conectar ao servidor.'};
     }
+  }
+
+  Future<void> logout(BuildContext context) async {
+
+    final usuariosLogadosProvider = Provider.of<UsuariosLogados>(context, listen: false);
+    await usuariosLogadosProvider.logout();
+
+    // 1. Limpar o token do armazenamento seguro
+    await _tokenStorage.deleteToken();
+
+    // 2. (Opcional) Chamar a API para invalidar o token no backend
+    // final response = await http.post(Uri.parse('${Config.apiUrl}/logout'), headers: ...);
+    // if (response.statusCode == 200) { ... }
+
+    // 3. Navegar para a tela de login e remover todas as telas anteriores
+    // Usamos um serviço de navegação para fazer isso sem um BuildContext
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const AuthScreen()),
+          (Route<dynamic> route) => false,
+    );
   }
 }

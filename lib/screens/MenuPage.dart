@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
+import 'package:zeropoint/controllers/dashboard_action_handler.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 import 'package:zeropoint/screens/ameacas_screen.dart';
 import 'package:zeropoint/screens/dispositivos_screen.dart';
+import 'package:zeropoint/services/auth_service.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
 
-// Imports dos widgets extraídos
-// import 'package:zeropoint/screens/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_riscos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/data_table_section.dart';
@@ -17,9 +17,9 @@ import 'package:zeropoint/widgets/dashboard_widgets/kpi_section.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/line_chart_detections.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/pie_chart_ataques.dart';
 
-// Imports dos diálogos e do nosso Controller/Handler
 import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
-import 'package:zeropoint/controllers/dashboard_action_handler.dart';
+// **ATUALIZADO**: O nome do arquivo foi alterado na sugestão
+// import 'package:zeropoint/widgets/handlers/dashboard_action_handler.dart';
 
 
 enum DateRangePreset { last24h, last7d, last30d, custom }
@@ -46,29 +46,40 @@ class _MenuPageState extends State<MenuPage> {
     _fetchData();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  // **ATUALIZADO**: Lógica de cálculo de data movida para uma função separada
+  Map<String, DateTime?> _getCurrentDateRange() {
+    DateTime? startDate;
+    DateTime? endDate;
+
+    switch (_selectedPreset) {
+      case DateRangePreset.last24h:
+      // O backend trata `null` como últimas 24h
+        break;
+      case DateRangePreset.last7d:
+        endDate = DateTime.now();
+        startDate = endDate.subtract(const Duration(days: 7));
+        break;
+      case DateRangePreset.last30d:
+        endDate = DateTime.now();
+        startDate = endDate.subtract(const Duration(days: 30));
+        break;
+      case DateRangePreset.custom:
+        startDate = _customStartDate;
+        // Adiciona 1 dia para incluir o dia final completo na busca da API
+        endDate = _customEndDate?.add(const Duration(days: 1));
+        break;
+    }
+    return {'startDate': startDate, 'endDate': endDate};
   }
 
   Future<void> _fetchData() async  {
     if (mounted) {
-      DateTime? startDate;
-      DateTime? endDate;
-
-      if (_selectedPreset == DateRangePreset.last7d) {
-        endDate = DateTime.now();
-        startDate = endDate.subtract(const Duration(days: 7));
-      } else if (_selectedPreset == DateRangePreset.last30d) {
-        endDate = DateTime.now();
-        startDate = endDate.subtract(const Duration(days: 30));
-      } else if (_selectedPreset == DateRangePreset.custom) {
-        startDate = _customStartDate;
-        endDate = _customEndDate?.add(const Duration(days: 1));
-      }
-
+      final dateRange = _getCurrentDateRange();
       setState(() {
-        _dashboardFuture = _dashboardService.fetchDashboardSummary(startDate: startDate, endDate: endDate);
+        _dashboardFuture = _dashboardService.fetchDashboardSummary(
+          startDate: dateRange['startDate'],
+          endDate: dateRange['endDate'],
+        );
       });
     }
   }
@@ -107,11 +118,17 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    // O Handler é criado aqui, com o contexto e serviço necessários
     final actionHandler = DashboardActionHandler(
       context: context,
       dashboardService: _dashboardService,
     );
+
+    // **NOVO**: Obtém o intervalo de datas atual para passar para o handler
+    final dateRange = _getCurrentDateRange();
+    final startDate = dateRange['startDate'];
+    final endDate = dateRange['endDate'];
+
+
 
     return Scaffold(
       appBar: AppBar(
@@ -127,16 +144,13 @@ class _MenuPageState extends State<MenuPage> {
         children: [
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () async => _fetchData(),
+              onRefresh: _fetchData,
               child: FutureBuilder<DashboardSummary>(
                 future: _dashboardFuture,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ConnectionErrorDialog.show(
-                        context,
-                        onTryAgain: _fetchData, // Agora os tipos são compatíveis!
-                      );
+                      ConnectionErrorDialog.show(context, onTryAgain: _fetchData);
                     });
                     return const Center(child: Text('Tentando reconectar...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
                   }
@@ -156,10 +170,28 @@ class _MenuPageState extends State<MenuPage> {
                             const SizedBox(height: 16),
                             KpiSection(
                               kpis: dashboardData.kpis,
-                              onDeteccoesTapped: actionHandler.showDeteccoesDetails,
-                              onAcoesTapped: actionHandler.showAcoesDetails,
-                              onIncidentesTapped: actionHandler.showIncidentesDetails,
-                              onDispositivosTapped: actionHandler.showDispositivosDetails,
+                              // **ATUALIZADO**: Passa os parâmetros para o handler
+                              onDeteccoesTapped: () => actionHandler.showDeteccoesDetails(
+                                // kpiCount: dashboardData.kpis.deteccoes ?? 0,
+                                kpiCount: dashboardData.kpis.totalDeteccoes ?? 0,
+                                startDate: startDate,
+                                endDate: endDate,
+                              ),
+                              onAcoesTapped: () => actionHandler.showAcoesDetails(
+                                // kpiCount: dashboardData.kpis.acoes ?? 0,
+                                kpiCount: dashboardData.kpis.acoesExecutadas ?? 0,
+                                startDate: startDate,
+                                endDate: endDate,
+                              ),
+                              onIncidentesTapped: () => actionHandler.showIncidentesDetails(
+                                // kpiCount: dashboardData.kpis.incidentes ?? 0,
+                                kpiCount: dashboardData.kpis.incidentesCriados ?? 0,
+                                startDate: startDate,
+                                endDate: endDate,
+                              ),
+                              onDispositivosTapped: () => actionHandler.showDispositivosDetails(
+                                kpiCount: dashboardData.kpis.dispositivosAtivos ?? 0,
+                              ),
                             ),
                             const SizedBox(height: 24),
                             LineChartDetections(data: dashboardData.deteccoesPorHora),
@@ -216,8 +248,6 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
-  // --- Widgets de Construção da UI (agora são apenas helpers menores) ---
-
   Widget _buildDateFilter() {
     return Center(
       child: SingleChildScrollView(
@@ -233,7 +263,7 @@ class _MenuPageState extends State<MenuPage> {
             const SizedBox(width: 8),
             ActionChip(
               label: Text(
-                _selectedPreset == DateRangePreset.custom
+                _selectedPreset == DateRangePreset.custom && _customStartDate != null
                     ? '${DateFormat('dd/MM/yy').format(_customStartDate!)} - ${DateFormat('dd/MM/yy').format(_customEndDate!)}'
                     : 'Personalizado',
                 style: TextStyle(color: _selectedPreset == DateRangePreset.custom ? Colors.white : MyColors.primary_qcyber),
@@ -265,6 +295,7 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
+  final AuthService _authService = AuthService();
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       backgroundColor: MyColors.card_qcyber,
@@ -293,7 +324,10 @@ class _MenuPageState extends State<MenuPage> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const AmeacasScreen()));
           }),
           const Divider(color: MyColors.border_qcyber),
-          _buildDrawerItem(icon: Icons.logout, text: "Sair", onTap: () { Navigator.pop(context); }),
+          _buildDrawerItem(icon: Icons.logout, text: "Sair", onTap: () {
+            _authService.logout(context);
+            // Navigator.pop(context);
+          }),
         ],
       ),
     );

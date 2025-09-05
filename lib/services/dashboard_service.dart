@@ -66,8 +66,16 @@ class DashboardService {
   }
 
   // 5. APLIQUE O MESMO PADRÃO PARA OS OUTROS MÉTODOS
-  Future<List<AcaoDetail>> fetchAcoesDetails() async {
-    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/acoes');
+  Future<List<AcaoDetail>> fetchAcoesDetails({DateTime? startDate, DateTime? endDate}) async {
+    final Map<String, String> queryParameters = {};
+    if (startDate != null) {
+      queryParameters['start_date'] = startDate.toIso8601String();
+    }
+    if (endDate != null) {
+      queryParameters['end_date'] = endDate.toIso8601String();
+    }
+    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/acoes').replace(queryParameters: queryParameters);
+
     final headers = await _getAuthHeaders();
     final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
@@ -78,8 +86,16 @@ class DashboardService {
     }
   }
 
-  Future<List<IncidenteDetail>> fetchIncidentesDetails() async {
-    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/incidentes');
+  Future<List<IncidenteDetail>> fetchIncidentesDetails({DateTime? startDate, DateTime? endDate}) async {
+    final Map<String, String> queryParameters = {};
+    if (startDate != null) {
+      queryParameters['start_date'] = startDate.toIso8601String();
+    }
+    if (endDate != null) {
+      queryParameters['end_date'] = endDate.toIso8601String();
+    }
+    final uri = Uri.parse('${Config.apiUrl}/dashboard/details/incidentes').replace(queryParameters: queryParameters);
+
     final headers = await _getAuthHeaders();
     final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
