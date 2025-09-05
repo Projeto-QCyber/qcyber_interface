@@ -22,6 +22,6 @@ class Config {
   static const String logoAzul = 'images/AMRTEC.png';
 
   /// -> NOME DA APLICACAO
-  static const String nomeDaAplicacao = 'Zero Point';
+  static const String nomeDaAplicacao = 'QCyber';
 
 }
