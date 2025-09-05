@@ -82,7 +82,7 @@ class _StatefulConnectionDialogContentState extends State<StatefulConnectionDial
           // Botão é desabilitado durante qualquer ação
           onPressed: _isTryingAgain || _isLoggingOut ? null : _handleTryAgain,
           child: _isTryingAgain
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
               : const Text('TENTAR NOVAMENTE', style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
         ),
         ElevatedButton(
