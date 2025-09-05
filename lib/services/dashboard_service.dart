@@ -1,11 +1,28 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:zeropoint/_core/config.dart';
+import 'package:zeropoint/_core/services/token_storage_service.dart'; // 1. IMPORTE O SERVIÇO DE TOKEN
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 
 class DashboardService {
+  // 2. CRIE UMA INSTÂNCIA DO SERVIÇO
+  final TokenStorageService _tokenStorage = TokenStorageService();
+
+  // Função auxiliar para obter os headers com autenticação
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final String? token = await _tokenStorage.getToken();
+    if (token == null) {
+      // Você pode lançar um erro mais específico se preferir
+      throw Exception('Token de autenticação não encontrado. Faça o login novamente.');
+    }
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+  }
+
+
   Future<DashboardSummary> fetchDashboardSummary({DateTime? startDate, DateTime? endDate}) async {
-    // Constrói a URI com os parâmetros de data, se existirem
     final Map<String, String> queryParameters = {};
     if (startDate != null) {
       queryParameters['start_date'] = startDate.toIso8601String();
@@ -13,26 +30,15 @@ class DashboardService {
     if (endDate != null) {
       queryParameters['end_date'] = endDate.toIso8601String();
     }
-
     final uri = Uri.parse('${Config.apiUrl}/dashboard/summary').replace(queryParameters: queryParameters);
 
-    // IMPORTANTE: Adicione o token de autenticação aqui!
-    // TODO: Obter o token JWT salvo (ex: SharedPreferences) e adicioná-lo ao header
-    final String? token = "SEU_TOKEN_JWT_AQUI"; // Substitua pela lógica real de obtenção do token
-
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    // 3. OBTENHA OS HEADERS DE FORMA DINÂMICA
+    final headers = await _getAuthHeaders();
+    final response = await http.get(uri, headers: headers);
 
     if (response.statusCode == 200) {
-      // Usa a função gerada para fazer o parse do JSON de forma segura
       return dashboardSummaryFromJson(response.body);
     } else {
-      // Lança uma exceção se a chamada falhar
       throw Exception('Falha ao carregar os dados do dashboard. Status: ${response.statusCode}');
     }
   }
@@ -45,22 +51,13 @@ class DashboardService {
     if (endDate != null) {
       queryParameters['end_date'] = endDate.toIso8601String();
     }
-
     final uri = Uri.parse('${Config.apiUrl}/dashboard/details/deteccoes').replace(queryParameters: queryParameters);
 
-    // TODO: Obter o token JWT salvo
-    final String? token = "SEU_TOKEN_JWT_AQUI";
-
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    // 4. REUTILIZE A FUNÇÃO DE HEADERS
+    final headers = await _getAuthHeaders();
+    final response = await http.get(uri, headers: headers);
 
     if (response.statusCode == 200) {
-      // Decodifica a lista diretamente
       final List<dynamic> body = json.decode(response.body);
       return body.map((dynamic item) => UltimaDeteccao.fromJson(item)).toList();
     } else {
@@ -68,10 +65,11 @@ class DashboardService {
     }
   }
 
+  // 5. APLIQUE O MESMO PADRÃO PARA OS OUTROS MÉTODOS
   Future<List<AcaoDetail>> fetchAcoesDetails() async {
     final uri = Uri.parse('${Config.apiUrl}/dashboard/details/acoes');
-    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
-    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    final headers = await _getAuthHeaders();
+    final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
       final List<dynamic> body = json.decode(response.body);
       return body.map((dynamic item) => AcaoDetail.fromJson(item)).toList();
@@ -82,8 +80,8 @@ class DashboardService {
 
   Future<List<IncidenteDetail>> fetchIncidentesDetails() async {
     final uri = Uri.parse('${Config.apiUrl}/dashboard/details/incidentes');
-    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
-    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    final headers = await _getAuthHeaders();
+    final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
       final List<dynamic> body = json.decode(response.body);
       return body.map((dynamic item) => IncidenteDetail.fromJson(item)).toList();
@@ -94,8 +92,8 @@ class DashboardService {
 
   Future<List<DispositivoDetail>> fetchDispositivosDetails() async {
     final uri = Uri.parse('${Config.apiUrl}/dashboard/details/dispositivos');
-    final String? token = "SEU_TOKEN_JWT_AQUI"; // TODO: Substituir
-    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    final headers = await _getAuthHeaders();
+    final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
       final List<dynamic> body = json.decode(response.body);
       return body.map((dynamic item) => DispositivoDetail.fromJson(item)).toList();

@@ -34,7 +34,7 @@ class DashboardActionHandler {
   }
 
   // Lógica para o KPI de Detecções
-  void showDeteccoesDetails() async {
+  Future<void> showDeteccoesDetails() async {
     _showLoadingIndicator();
     try {
       final details = await dashboardService.fetchDeteccoesDetails();
@@ -57,7 +57,7 @@ class DashboardActionHandler {
   }
 
   // Lógica para o KPI de Ações Automáticas
-  void showAcoesDetails() async {
+  Future<void>  showAcoesDetails() async {
     _showLoadingIndicator();
     try {
       final details = await dashboardService.fetchAcoesDetails();
@@ -80,7 +80,7 @@ class DashboardActionHandler {
   }
 
   // Lógica para o KPI de Incidentes
-  void showIncidentesDetails() async {
+  Future<void>  showIncidentesDetails() async {
     _showLoadingIndicator();
     try {
       final details = await dashboardService.fetchIncidentesDetails();
@@ -144,7 +144,7 @@ class DashboardActionHandler {
   }
 
   // Lógica para o KPI de Dispositivos
-  void showDispositivosDetails() async {
+  Future<void>  showDispositivosDetails() async {
     _showLoadingIndicator();
     try {
       final details = await dashboardService.fetchDispositivosDetails();

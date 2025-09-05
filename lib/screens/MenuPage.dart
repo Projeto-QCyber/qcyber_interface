@@ -51,7 +51,7 @@ class _MenuPageState extends State<MenuPage> {
     super.dispose();
   }
 
-  void _fetchData() {
+  Future<void> _fetchData() async  {
     if (mounted) {
       DateTime? startDate;
       DateTime? endDate;
@@ -133,7 +133,10 @@ class _MenuPageState extends State<MenuPage> {
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ConnectionErrorDialog.show(context, onTryAgain: _fetchData);
+                      ConnectionErrorDialog.show(
+                        context,
+                        onTryAgain: _fetchData, // Agora os tipos são compatíveis!
+                      );
                     });
                     return const Center(child: Text('Tentando reconectar...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
                   }

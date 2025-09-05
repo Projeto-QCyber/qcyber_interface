@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // 1. IMPORTE o Provider
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
+import 'package:zeropoint/objetos/UsuariosLogados.dart'; // 2. IMPORTE seu objeto de estado
 import 'package:zeropoint/screens/MenuPage.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
@@ -12,24 +14,19 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  // Controladores para os campos do formulário
+  // ... (controllers e outras variáveis continuam iguais)
   final _emailController = TextEditingController(text: "pedrolino.landim@gmail.com");
   final _senhaController = TextEditingController(text: "123456");
   final _confirmaController = TextEditingController();
   final _nomeController = TextEditingController();
-
-  // Variáveis de estado da UI
   bool _isEntrando = true;
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
-
   final _authService = AuthService();
 
-  // ATUALIZADO: Lógica simplificada para o login com JWT, sem 2FA.
   Future<void> _entrarUsuario() async {
     setState(() => _isLoading = true);
 
-    // A chamada para o serviço de login que atualizamos.
     final result = await _authService.login(
       _emailController.text,
       _senhaController.text,
@@ -40,14 +37,19 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!mounted) return;
 
     if (result['success']) {
-      // Login bem-sucedido, o token foi recebido no AuthService.
-      // Navega diretamente para a página principal.
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MenuPage()),
+      // 3. ALTERADO: Ponto principal da atualização!
+      // Antes de navegar, vamos atualizar o estado do usuário logado.
+      // O ideal é pegar os dados do usuário decodificando o token ou de uma rota /me da API.
+      // Por enquanto, usaremos o e-mail do controller.
+      Provider.of<UsuariosLogados>(context, listen: false).atualizarUsuarioLogado(
+        0, // TODO: Substituir por um ID real vindo da API
+        _emailController.text, // TODO: Substituir pelo nome real vindo da API
       );
+
+      // Navega para a página principal usando a rota nomeada
+      Navigator.pushReplacementNamed(context, '/home');
+
     } else {
-      // Exibe a mensagem de erro retornada pela API.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['error'] ?? 'Ocorreu um erro no login.'),
@@ -57,24 +59,17 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  // ATUALIZADO: A chamada ao serviço de registro foi ajustada.
+  // ... (o resto da classe continua exatamente igual)
   Future<void> _criarUsuario() async {
     setState(() => _isLoading = true);
-
-    // A chamada para o serviço de registro que implementamos.
-    // O parâmetro 'enable2fa' foi removido, pois a nova função não o utiliza.
     final result = await _authService.register(
       nome: _nomeController.text,
       email: _emailController.text,
       password: _senhaController.text,
     );
-
     setState(() => _isLoading = false);
-
     if (!mounted) return;
-
     if (result['success']) {
-      // Mostra a mensagem de sucesso e muda para a tela de login.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['message'] ?? 'Registro bem-sucedido! Por favor, faça o login.'),
@@ -83,7 +78,6 @@ class _AuthScreenState extends State<AuthScreen> {
       );
       setState(() => _isEntrando = true);
     } else {
-      // Mostra a mensagem de erro retornada pela API (ex: e-mail já existe).
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['error'] ?? 'Ocorreu um erro no registro.'),
@@ -99,7 +93,6 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  // Função para criar a decoração dos campos de texto (sem alterações).
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
     labelStyle: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8)),
@@ -123,6 +116,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ... O build continua exatamente o mesmo
     final textStyle = const TextStyle(
       color: MyColors.textOnPrimary_qcyber,
       height: 1.5,
