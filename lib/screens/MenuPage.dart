@@ -194,8 +194,6 @@ class _MenuPageState extends State<MenuPage> {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            LineChartDetections(data: dashboardData.deteccoesPorHora),
-                            const SizedBox(height: 24),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -210,6 +208,9 @@ class _MenuPageState extends State<MenuPage> {
                                 Expanded(child: BarChartRiscos(data: dashboardData.incidentesPorRisco)),
                               ],
                             ),
+                            const SizedBox(height: 24),
+                            // Volume de Detecções
+                            LineChartDetections(data: dashboardData.deteccoesPorHora),
                             const SizedBox(height: 24),
                             BarChartDispositivos(data: dashboardData.dispositivosAtacados),
                             const SizedBox(height: 24),

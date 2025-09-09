@@ -33,23 +33,23 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Seu tema continua o mesmo...
-        scaffoldBackgroundColor: MyColors.fundo_app1,
-        primaryColor: MyColors.fundo_app1,
+        scaffoldBackgroundColor: MyColors.background_qcyber,
+        primaryColor: MyColors.background_qcyber,
         appBarTheme: AppBarTheme(
-          backgroundColor: MyColors.principal_app1,
+          backgroundColor: MyColors.primary_qcyber,
           titleTextStyle: TextStyle(
-            color: MyColors.fundo_app1,
+            color: MyColors.background_qcyber,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
           iconTheme: IconThemeData(
-            color: MyColors.fundo_app1,
+            color: MyColors.background_qcyber,
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: MyColors.fundo_app1,
-            backgroundColor: MyColors.principal_app1,
+            foregroundColor: MyColors.background_qcyber,
+            backgroundColor: MyColors.primary_qcyber,
           ),
         ),
       ),

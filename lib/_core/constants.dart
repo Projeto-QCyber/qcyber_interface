@@ -15,7 +15,7 @@ final cinzaSesc = Color.fromARGB(255, 217, 217, 217);
 
 
 final TextStyle textoDeSeparacao = TextStyle(
-  color: MyColors.principal_app1,
+  color: MyColors.primary_qcyber,
   fontSize: 18,
   fontWeight: FontWeight.bold,
   fontFamily: 'Poppins',
@@ -25,11 +25,11 @@ final TextStyle textoDeSeparacao = TextStyle(
 final TextStyle textoInformacoesDeCard = TextStyle(
 fontSize: 16,
 fontWeight: FontWeight.bold,
-color: MyColors.fundo_app1,
+color: MyColors.background_qcyber,
 );
 
 final TextStyle titulo_app1 = TextStyle(
-  color: MyColors.fundo_app1,
+  color: MyColors.background_qcyber,
   fontSize: 24,
   fontWeight: FontWeight.bold,
   fontFamily: 'Poppins',
@@ -37,14 +37,14 @@ final TextStyle titulo_app1 = TextStyle(
 );
 
 final TextStyle informacoesDeLogin_app1 = TextStyle(
-  color: MyColors.fundo_app1,
+  color: MyColors.background_qcyber,
   fontSize: 14,
   fontFamily: 'Poppins',
   letterSpacing: 1,
 );
 
 final TextStyle btnLogin_app1 = TextStyle(
-color: MyColors.principal_app1,
+color: MyColors.primary_qcyber,
 fontSize: 14,
 fontFamily: 'Poppins',
 letterSpacing: 1,
@@ -52,21 +52,21 @@ letterSpacing: 1,
 
 
 final TextStyle textoInformacaoPrincipalGrande = TextStyle(
-  color: MyColors.principal_app1,
+  color: MyColors.primary_qcyber,
   fontSize: 32,
   fontFamily: 'RedRose',
   letterSpacing: 1,
 );
 
 final TextStyle textoInformacaoPrincipalMedia = TextStyle(
-  color: MyColors.principal_app1,
+  color: MyColors.primary_qcyber,
   fontSize: 27,
   fontFamily: 'RedRose',
   letterSpacing: 1,
 );
 
 final TextStyle textoInformacaoSecundaria = TextStyle(
-  color: MyColors.principal_app1,
+  color: MyColors.primary_qcyber,
   fontSize: 16,
   fontFamily: 'RedRose',
   letterSpacing: 1,
