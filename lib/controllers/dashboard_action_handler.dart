@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:zeropoint/_core/enums/nivel_risco_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
 import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
@@ -36,7 +37,6 @@ class DashboardActionHandler {
     DateTime? endDate,
   }) async {
     if (kpiCount == 0) {
-      // **CORRIGIDO**: 'context' é passado como argumento posicional
       KpiDetailsDialog.show(context, title: "Últimas Detecções", icon: Icons.warning_amber, iconColor: MyColors.error_qcyber, children: []);
       return;
     }
@@ -73,7 +73,6 @@ class DashboardActionHandler {
     DateTime? endDate,
   }) async {
     if (kpiCount == 0) {
-      // **CORRIGIDO**: 'context' é passado como argumento posicional
       KpiDetailsDialog.show(context, title: "Ações Automáticas", icon: Icons.shield, iconColor: MyColors.primary_qcyber, children: []);
       return;
     }
@@ -99,14 +98,14 @@ class DashboardActionHandler {
     }
   }
 
+
   Future<void> showIncidentesDetails({
     required int kpiCount,
     DateTime? startDate,
     DateTime? endDate,
   }) async {
     if (kpiCount == 0) {
-      // **CORRIGIDO**: 'context' é passado como argumento posicional
-      KpiDetailsDialog.show(context, title: "Incidentes Recentes", icon: Icons.assignment_late, iconColor: Colors.orangeAccent, children: []);
+      KpiDetailsDialog.show(context, title: "Incidentes Recentes", icon: Icons.assignment_late, iconColor: MyColors.orange_qcyber, children: []);
       return;
     }
 
@@ -118,32 +117,38 @@ class DashboardActionHandler {
         context,
         title: "Incidentes Recentes",
         icon: Icons.assignment_late,
-        iconColor: Colors.orangeAccent,
-        children: details.map((i) => KpiDetailRow(
-          icon: Icons.flag_outlined,
-          iconColor: _getRiscoTextColor(i.nivelRisco),
-          title: i.titulo,
-          trailing: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 80,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              decoration: BoxDecoration(
-                color: _getRiscoBackgroundColor(i.nivelRisco),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Text(
-                i.nivelRisco,
-                style: TextStyle(
-                  color: _getRiscoTextColor(i.nivelRisco),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+        iconColor: MyColors.orange_qcyber,
+        children: details.map((i) {
+          // 1. Converte a string da API para o nosso Enum seguro
+          final nivelRisco = NivelRisco.fromString(i.nivelRisco);
+
+          // 2. Usa o Enum para obter as cores e construir o widget
+          return KpiDetailRow(
+            icon: Icons.flag_outlined,
+            iconColor: nivelRisco.textColor,
+            title: i.titulo,
+            trailing: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: 80,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                decoration: BoxDecoration(
+                  color: nivelRisco.backgroundColor, // Cor do Enum
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Text(
+                  i.nivelRisco,
+                  style: TextStyle(
+                    color: nivelRisco.textColor, // Cor do Enum
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),
-          ),
-        )).toList(),
+          );
+        }).toList(),
       );
     } catch (e) {
       _hideLoadingIndicator();
@@ -151,9 +156,10 @@ class DashboardActionHandler {
     }
   }
 
+
+
   Future<void> showDispositivosDetails({required int kpiCount}) async {
     if (kpiCount == 0) {
-      // **CORRIGIDO**: 'context' é passado como argumento posicional
       KpiDetailsDialog.show(context, title: "Dispositivos Ativos", icon: Icons.computer, iconColor: MyColors.primary_qcyber, children: []);
       return;
     }
@@ -179,23 +185,5 @@ class DashboardActionHandler {
     }
   }
 
-  Color _getRiscoBackgroundColor(String nivelRisco) {
-    switch (nivelRisco.toLowerCase()) {
-      case 'baixo': return Colors.green.shade100;
-      case 'medio': return Colors.orange.shade100;
-      case 'alto': return Colors.red.shade100;
-      case 'critico': return Colors.purple.shade100;
-      default: return MyColors.border_qcyber;
-    }
-  }
 
-  Color _getRiscoTextColor(String nivelRisco) {
-    switch (nivelRisco.toLowerCase()) {
-      case 'baixo': return Colors.green.shade800;
-      case 'medio': return Colors.orange.shade800;
-      case 'alto': return Colors.red.shade800;
-      case 'critico': return Colors.purple.shade800;
-      default: return MyColors.textSecondary_qcyber;
-    }
-  }
 }
