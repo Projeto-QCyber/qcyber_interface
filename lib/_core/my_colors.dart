@@ -50,6 +50,7 @@ class MyColors {
   static final Color riskCriticalText = Colors.red.shade300;
 
   // Nível Desconhecido (Fallback)
+  // static const Color riskUnknownBackground = border_qcyber;
   static const Color riskUnknownBackground = border_qcyber;
   static const Color riskUnknownText = textSecondary_qcyber;
 }

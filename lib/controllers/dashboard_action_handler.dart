@@ -138,9 +138,9 @@ class DashboardActionHandler {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Text(
-                  i.nivelRisco,
+                  nivelRisco.displayName,
                   style: TextStyle(
-                    color: nivelRisco.textColor, // Cor do Enum
+                    color: nivelRisco.textColor, // Cor vinda do Enum
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),

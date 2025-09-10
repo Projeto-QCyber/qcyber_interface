@@ -57,4 +57,20 @@ enum NivelRisco {
         return MyColors.riskUnknownText;
     }
   }
+
+  String get displayName {
+    switch (this) {
+      case NivelRisco.baixo:
+        return 'Baixo';
+      case NivelRisco.medio:
+        return 'Médio';
+      case NivelRisco.alto:
+        return 'Alto';
+      case NivelRisco.critico:
+        return 'Crítico';
+      case NivelRisco.desconhecido:
+        return 'Desc.'; // Uma abreviação boa para o gráfico
+    }
+  }
+
 }

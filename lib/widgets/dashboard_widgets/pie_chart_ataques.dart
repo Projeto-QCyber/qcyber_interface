@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:zeropoint/_core/my_colors.dart';
+import 'package:zeropoint/objetos/dashboard/ataque_por_tipo.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 
 class PieChartAtaques extends StatelessWidget {

@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:zeropoint/_core/config.dart';
-import 'package:zeropoint/_core/services/token_storage_service.dart'; // 1. IMPORTE O SERVIÇO DE TOKEN
+import 'package:zeropoint/_core/services/token_storage_service.dart';
+import 'package:zeropoint/objetos/dashboard/acao_detail.dart';
+import 'package:zeropoint/objetos/dashboard/dispositivo_detail.dart';
+import 'package:zeropoint/objetos/dashboard/incidente_detail.dart';
+import 'package:zeropoint/objetos/dashboard/ultima_deteccao.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 
 class DashboardService {

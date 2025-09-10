@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:zeropoint/_core/my_colors.dart';
+import 'package:zeropoint/objetos/dashboard/deteccoes_por_hora.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 
 class LineChartDetections extends StatelessWidget {

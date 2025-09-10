@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zeropoint/_core/my_colors.dart';
+import 'package:zeropoint/objetos/dashboard/dispositivos_atacados.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 
 class BarChartDispositivos extends StatelessWidget {
