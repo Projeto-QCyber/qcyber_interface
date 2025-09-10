@@ -52,7 +52,7 @@ class DashboardActionHandler {
         iconColor: MyColors.error_qcyber,
         children: details.map((d) => KpiDetailRow(
           icon: Icons.shield_moon_outlined,
-          iconColor: MyColors.primary_qcyber,
+          iconColor: MyColors.error_qcyber,
           title: d.tipoAtaque,
           subtitle: d.nomeDispositivo,
           trailing: Text(
@@ -73,7 +73,7 @@ class DashboardActionHandler {
     DateTime? endDate,
   }) async {
     if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Ações Automáticas", icon: Icons.shield, iconColor: MyColors.primary_qcyber, children: []);
+      KpiDetailsDialog.show(context, title: "Ações Automáticas", icon: Icons.shield, iconColor: MyColors.textOnPrimary_qcyber, children: []);
       return;
     }
 
@@ -85,10 +85,10 @@ class DashboardActionHandler {
         context,
         title: "Ações Automáticas Recentes",
         icon: Icons.shield,
-        iconColor: MyColors.primary_qcyber,
+        iconColor: MyColors.textOnPrimary_qcyber,
         children: details.map((acao) => KpiDetailRow(
           icon: Icons.check_circle,
-          iconColor: MyColors.primary_qcyber,
+          iconColor: MyColors.textOnPrimary_qcyber,
           title: acao.nomeAcao,
         )).toList(),
       );
@@ -160,7 +160,7 @@ class DashboardActionHandler {
 
   Future<void> showDispositivosDetails({required int kpiCount}) async {
     if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Dispositivos Ativos", icon: Icons.computer, iconColor: MyColors.primary_qcyber, children: []);
+      KpiDetailsDialog.show(context, title: "Dispositivos Ativos", icon: Icons.computer, iconColor: MyColors.textOnPrimary_qcyber, children: []);
       return;
     }
     _showLoadingIndicator();
@@ -171,7 +171,7 @@ class DashboardActionHandler {
         context,
         title: "Dispositivos Ativos",
         icon: Icons.computer,
-        iconColor: MyColors.primary_qcyber,
+        iconColor: MyColors.textOnPrimary_qcyber,
         children: details.map((d) => KpiDetailRow(
           icon: Icons.circle,
           iconColor: Colors.green,
