@@ -29,15 +29,25 @@ class BarChartDispositivos extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Row(
                   children: [
-                    SizedBox(width: 150, child: Text(item.nomeDispositivo, overflow: TextOverflow.ellipsis, style: const TextStyle(color: MyColors.textSecondary_qcyber))),
+                    // ALTERAÇÃO 2: Nome do dispositivo agora é flexível
                     Expanded(
+                        flex: 1, // Ocupa 2 partes do espaço flexível
+                        child: Text(item.nomeDispositivo, overflow: TextOverflow.ellipsis, style: const TextStyle(color: MyColors.textSecondary_qcyber))),
+                    // Adicionado um pequeno espaço entre o nome e a barra
+                    // const SizedBox(width: 2),
+                    // ALTERAÇÃO 2: A barra também é flexível
+                    Expanded(
+                      flex: 3, // Ocupa 3 partes do espaço flexível (maior que o nome)
                       child: LinearProgressIndicator(
                         value: item.total / (data.first.total > 0 ? data.first.total : 1),
                         backgroundColor: MyColors.border_qcyber,
                         valueColor: const AlwaysStoppedAnimation<Color>(MyColors.chart2_qcyber),
                         minHeight: 10,
+                        borderRadius: BorderRadius.circular(5),
                       ),
                     ),
+                    // ALTERAÇÃO 1: Adiciona a margem entre a barra e o valor
+                    const SizedBox(width: 8),
                     SizedBox(width: 50, child: Text(' ${item.total}', style: const TextStyle(color: MyColors.textPrimary_qcyber, fontWeight: FontWeight.bold))),
                   ],
                 ),

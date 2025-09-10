@@ -62,7 +62,7 @@ class PieChartAtaques extends StatelessWidget {
                         titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.white, shadows: [Shadow(color: Colors.black.withOpacity(0.5), blurRadius: 2)]),
                         badgeWidget: isTouched ? Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.8), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white.withOpacity(0.3))),
+                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.8), borderRadius: BorderRadius.circular(8),),
                           child: Column(
                             mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

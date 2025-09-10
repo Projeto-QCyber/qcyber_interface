@@ -172,19 +172,16 @@ class _MenuPageState extends State<MenuPage> {
                               kpis: dashboardData.kpis,
                               // **ATUALIZADO**: Passa os parâmetros para o handler
                               onDeteccoesTapped: () => actionHandler.showDeteccoesDetails(
-                                // kpiCount: dashboardData.kpis.deteccoes ?? 0,
                                 kpiCount: dashboardData.kpis.totalDeteccoes ?? 0,
                                 startDate: startDate,
                                 endDate: endDate,
                               ),
                               onAcoesTapped: () => actionHandler.showAcoesDetails(
-                                // kpiCount: dashboardData.kpis.acoes ?? 0,
                                 kpiCount: dashboardData.kpis.acoesExecutadas ?? 0,
                                 startDate: startDate,
                                 endDate: endDate,
                               ),
                               onIncidentesTapped: () => actionHandler.showIncidentesDetails(
-                                // kpiCount: dashboardData.kpis.incidentes ?? 0,
                                 kpiCount: dashboardData.kpis.incidentesCriados ?? 0,
                                 startDate: startDate,
                                 endDate: endDate,
@@ -214,8 +211,8 @@ class _MenuPageState extends State<MenuPage> {
                             const SizedBox(height: 24),
                             BarChartDispositivos(data: dashboardData.dispositivosAtacados),
                             const SizedBox(height: 24),
-                            DataTableSection(deteccoes: dashboardData.ultimasDeteccoes),
-                            const SizedBox(height: 40),
+                            // DataTableSection(deteccoes: dashboardData.ultimasDeteccoes),
+                            // const SizedBox(height: 40),
                           ],
                         ),
                       ),
