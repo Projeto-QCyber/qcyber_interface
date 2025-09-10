@@ -26,11 +26,11 @@ class KpiSection extends StatelessWidget {
       children: [
         Expanded(child: _buildKpiCard('Detecções', kpis.totalDeteccoes.toString(), Icons.warning_amber, MyColors.error_qcyber, onTap: onDeteccoesTapped)),
         const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Ações Autom.', kpis.acoesExecutadas.toString(), Icons.shield, MyColors.primary_qcyber, onTap: onAcoesTapped)),
+        Expanded(child: _buildKpiCard('Ações Autom.', kpis.acoesExecutadas.toString(), Icons.shield, MyColors.textOnPrimary_qcyber, onTap: onAcoesTapped)),
         const SizedBox(width: 12),
         Expanded(child: _buildKpiCard('Incidentes', kpis.incidentesCriados.toString(), Icons.assignment_late, Colors.orangeAccent, onTap: onIncidentesTapped)),
         const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Dispositivos', kpis.dispositivosAtivos.toString(), Icons.computer, MyColors.primary_qcyber, onTap: onDispositivosTapped)),
+        Expanded(child: _buildKpiCard('Dispositivos', kpis.dispositivosAtivos.toString(), Icons.computer, MyColors.textOnPrimary_qcyber, onTap: onDispositivosTapped)),
       ],
     );
   }

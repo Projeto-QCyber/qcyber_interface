@@ -81,6 +81,7 @@ class DashboardActionHandler {
     try {
       final details = await dashboardService.fetchAcoesDetails(startDate: startDate, endDate: endDate);
       _hideLoadingIndicator();
+
       KpiDetailsDialog.show(
         context,
         title: "Ações Automáticas Recentes",
