@@ -1,14 +1,15 @@
-///VERSAO COM O TOM CINZA
+///VERSAO COM O AZUL ARMETEC
+
 
 import 'package:flutter/material.dart';
 
 class MyColors {
 
   // --- CORES FIXADAS POR VOCÊ ---
-  static const Color primary_qcyber = Color(0xFF4A5568);    // Primária (Elementos) - Ardósia
-  static const Color background_qcyber = Color(0xFF1A202C);  // Fundo - Quase Preto
-  static const Color card_qcyber = Color(0xFF2D3748);      // Cards - Charcoal
-  static const Color textPrimary_qcyber = Color(0xFFEDF2F7);   // Texto Principal - Branco
+  static const Color primary_qcyber = Color(0xFF21225D); // Azul Marinho (Widgets)
+  static const Color background_qcyber = Color(0xFF2D3748); // Fundo Charcoal
+  static const Color card_qcyber = Color(0xFF4A5568);      // Cards Ardósia
+  static const Color textPrimary_qcyber = Color(0xFFEDF2F7);   // Texto Principal Branco
 
   // --- CORES AJUSTADAS PARA HARMONIZAR ---
 
@@ -18,13 +19,13 @@ class MyColors {
   // Cores Neutras (UI Base)
   static const Color textSecondary_qcyber = Color(0xFFA0AEC0); // Texto secundário (Mantido)
   static const Color textOnPrimary_qcyber = Color(0xFFEDF2F7);   // Texto sobre o primário (Mantido)
-  static const Color border_qcyber = Color(0xFF4A5568);      // AJUSTADO: Alinhado com a cor primária para coesão
+  static const Color border_qcyber = Color(0xFF637381);      // AJUSTADO: Tom mais claro para delinear os cards
 
   // Cores para Gráficos (Data Visualization)
-  static const Color chart1_qcyber = accent_qcyber;     // O verde principal (Mantido)
-  static const Color chart2_qcyber = Color(0xFF00B5D8);     // Ciano vibrante (Mantido)
-  static const Color chart3_qcyber = Color(0xFFD69E2E); // Amarelo/Âmbar
-  static const Color chart4_qcyber = Color(0xFF7F92B0);     // Azul Dessaturado (Mantido)
+  static const Color chart1_qcyber = accent_qcyber; // O verde principal (Mantido)
+  static const Color chart2_qcyber = Color(0xFF00B5D8); // Ciano vibrante (Mantido)
+  static const Color chart3_qcyber = Color(0xFFD69E2E); // Amarelo/Âmbar (Mantido)
+  static const Color chart4_qcyber = Color(0xFF7F92B0); // AJUSTADO: Cinza trocado por Azul Dessaturado
 
   // Cores Semânticas (Status e Feedback) - Mantidas
   static const Color success_qcyber = Color(0xFF48BB78);

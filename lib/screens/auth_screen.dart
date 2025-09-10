@@ -197,12 +197,12 @@ class _AuthScreenState extends State<AuthScreen> {
                       ],
                       const SizedBox(height: 16),
                       if (_isLoading)
-                        const Center(child: CircularProgressIndicator(color: Colors.white))
+                        const Center(child: CircularProgressIndicator(color: MyColors.textOnPrimary_qcyber,))
                       else
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: MyColors.background_qcyber,
-                            foregroundColor: MyColors.primary_qcyber,
+                            foregroundColor: MyColors.textOnPrimary_qcyber,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           onPressed: _botaoEnviarClicado,
@@ -225,7 +225,7 @@ class _AuthScreenState extends State<AuthScreen> {
               'Versão 1.0.0',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: MyColors.primary_qcyber.withOpacity(0.7),
+                color: MyColors.textOnPrimary_qcyber,
                 fontSize: 12,
               ),
             ),

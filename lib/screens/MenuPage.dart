@@ -267,7 +267,7 @@ class _MenuPageState extends State<MenuPage> {
                 _selectedPreset == DateRangePreset.custom && _customStartDate != null
                     ? '${DateFormat('dd/MM/yy').format(_customStartDate!)} - ${DateFormat('dd/MM/yy').format(_customEndDate!)}'
                     : 'Personalizado',
-                style: TextStyle(color: _selectedPreset == DateRangePreset.custom ? Colors.white : MyColors.primary_qcyber),
+                style: TextStyle(color: _selectedPreset == DateRangePreset.custom ? MyColors.textPrimary_qcyber : MyColors.textPrimary_qcyber),
               ),
               backgroundColor: _selectedPreset == DateRangePreset.custom ? MyColors.primary_qcyber : MyColors.card_qcyber,
               onPressed: () => _selectCustomDateRange(context),
@@ -282,7 +282,7 @@ class _MenuPageState extends State<MenuPage> {
   Widget _buildFilterChip(DateRangePreset preset, String label) {
     final isSelected = _selectedPreset == preset;
     return FilterChip(
-      label: Text(label, style: TextStyle(color: isSelected ? Colors.white : MyColors.primary_qcyber)),
+      label: Text(label, style: TextStyle(color: isSelected ? MyColors.textPrimary_qcyber : MyColors.textPrimary_qcyber)),
       selected: isSelected,
       onSelected: (bool selected) {
         if (selected) {
