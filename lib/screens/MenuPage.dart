@@ -6,13 +6,13 @@ import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/controllers/dashboard_action_handler.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 import 'package:zeropoint/screens/ameacas_screen.dart';
-import 'package:zeropoint/screens/dispositivos_screen.dart';
+import 'package:zeropoint/screens/device_management_screen.dart';
+import 'package:zeropoint/screens/generic_history_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
 
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_riscos.dart';
-import 'package:zeropoint/widgets/dashboard_widgets/data_table_section.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/kpi_section.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/line_chart_detections.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/pie_chart_ataques.dart';
@@ -313,14 +313,23 @@ class _MenuPageState extends State<MenuPage> {
             ),
           ),
           _buildDrawerItem(icon: Icons.dashboard, text: "Dashboard", onTap: () { Navigator.pop(context); }),
-          _buildDrawerItem(icon: Icons.devices, text: "Dispositivos", onTap: () {
-            Navigator.pop(context);
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const DispositivosScreen()));
-          }),
-          _buildDrawerItem(icon: Icons.security, text: "Ameaças", onTap: () {
-            Navigator.pop(context);
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AmeacasScreen()));
-          }),
+          _buildDrawerItem(
+              icon: Icons.dns,
+              text: "Dispositivos", // Simplificado para "Dispositivos"
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const DeviceManagementScreen()));
+              }
+          ),
+          _buildDrawerItem(
+              icon: Icons.shield_outlined,
+              text: "Histórico por Ameaça",
+              onTap: () {
+                Navigator.pop(context);
+                // Navega para a tela de histórico em modo "Ameaça"
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const GenericHistoryScreen(filterType: HistoryFilterType.threat)));
+              }
+          ),
           const Divider(color: MyColors.border_qcyber),
           _buildDrawerItem(icon: Icons.logout, text: "Sair", onTap: () {
             _authService.logout(context);
