@@ -104,7 +104,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                           icon: const Icon(Icons.picture_as_pdf),
                           label: const Text("Baixar Relatório do Dispositivo"),
                           onPressed: () {
-                            _downloadSpecificReport(detail.dispositivoId);
+                            _downloadSpecificReport(detail.id);
                           },
                         ),
                       )
