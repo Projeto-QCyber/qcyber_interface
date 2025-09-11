@@ -39,7 +39,23 @@ class KpiDetailsDialog {
           ),
           actions: [
             TextButton(
-              child: const Text('FECHAR', style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
+              // Use a propriedade 'style' para customizar o botão
+              style: TextButton.styleFrom(
+
+                // Cor de fundo do botão
+                backgroundColor: MyColors.textOnPrimary_qcyber,
+                // Cor do texto (e do efeito de clique)
+                foregroundColor: MyColors.primary_qcyber,
+
+                // Opcional: se quiser deixar as bordas arredondadas
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+
+              // Agora o Text não precisa mais da propriedade style
+              child: const Text('FECHAR'),
+
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },

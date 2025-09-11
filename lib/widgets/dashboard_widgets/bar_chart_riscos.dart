@@ -152,14 +152,17 @@ class BarChartRiscos extends StatelessWidget {
                             topLeft: Radius.circular(6),
                             topRight: Radius.circular(6),
                           ),
-                          gradient: LinearGradient(
-                            colors: [
-                              barColor.withOpacity(0.7),
-                              barColor,
-                            ],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                          ),
+                          color: barColor, /// COR NORMAL
+
+                          /// COR COM DEGRADE
+                          // gradient: LinearGradient(
+                          //   colors: [
+                          //     barColor.withOpacity(0.7),
+                          //     barColor,
+                          //   ],
+                          //   begin: Alignment.bottomCenter,
+                          //   end: Alignment.topCenter,
+                          // ),
                         ),
                       ],
                     );

@@ -34,20 +34,20 @@ class MyColors {
 
   // Cores Semânticas de Risco - Mantidas
   // Nível Baixo
-  static final Color riskLowBackground = Colors.green.withOpacity(0.1);
+  static final Color riskLowBackground = Colors.green;//.withOpacity(0.1);
   static final Color riskLowText = Colors.green.shade200;
 
   // Nível Médio
-  static final Color riskMediumBackground = Colors.yellow.withOpacity(0.1);
-  static final Color riskMediumText = Colors.yellow.shade300;
+  static final Color riskMediumBackground = Colors.yellow;//.withOpacity(0.1);
+  static final Color riskMediumText = Colors.yellow.shade200;
 
   // Nível Alto
-  static final Color riskHighBackground = Colors.orange.withOpacity(0.15);
-  static final Color riskHighText = Colors.orange.shade300;
+  static final Color riskHighBackground = Colors.orange;//.withOpacity(0.15);
+  static final Color riskHighText = Colors.orange.shade200;
 
   // Nível Crítico
-  static final Color riskCriticalBackground = Colors.red.withOpacity(0.15);
-  static final Color riskCriticalText = Colors.red.shade300;
+  static final Color riskCriticalBackground = Colors.red;//.withOpacity(0.15);
+  static final Color riskCriticalText = Colors.red.shade200;
 
   // Nível Desconhecido (Fallback)
   // static const Color riskUnknownBackground = border_qcyber;
