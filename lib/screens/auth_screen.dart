@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:zeropoint/_core/config.dart';
+import 'package:zeropoint/_core/enums/verification_type_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/screens/MenuPage.dart';
 import 'package:zeropoint/screens/verification_screen.dart';
