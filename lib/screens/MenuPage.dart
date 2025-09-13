@@ -6,6 +6,7 @@ import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/controllers/dashboard_action_handler.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
 import 'package:zeropoint/screens/ameacas_screen.dart';
+import 'package:zeropoint/screens/auth_screen.dart';
 import 'package:zeropoint/screens/device_management_screen.dart';
 import 'package:zeropoint/screens/generic_history_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
@@ -331,10 +332,20 @@ class _MenuPageState extends State<MenuPage> {
               }
           ),
           const Divider(color: MyColors.border_qcyber),
-          _buildDrawerItem(icon: Icons.logout, text: "Sair", onTap: () {
-            _authService.logout(context);
-            // Navigator.pop(context);
-          }),
+          _buildDrawerItem(icon: Icons.logout, text: "Sair",
+              onTap: () {
+                // 1. Faz o logout
+                AuthService().logout(context); // Usamos uma nova instância ou o Provider
+
+                // 2. Garante que o drawer feche
+                Navigator.of(context).pop();
+
+                // 3. Navega para a tela de Auth e remove todas as outras telas
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const AuthScreen()),
+                      (route) => false,
+                );
+              }),
         ],
       ),
     );

@@ -1,104 +1,113 @@
+// lib/services/auth_service.dart
+
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+// ATUALIZADO: Usando seus próprios arquivos de Config e Model
 import 'package:zeropoint/_core/config.dart';
-import 'package:zeropoint/_core/services/token_storage_service.dart';
 import 'package:zeropoint/objetos/UsuariosLogados.dart';
-import 'package:zeropoint/screens/auth_screen.dart'; // 1. IMPORTE O NOVO SERVIÇO
+import 'package:zeropoint/_core/services/token_storage_service.dart'; // Certifique-se que o caminho está correto
 
 class AuthService {
-  // 2. CRIE UMA INSTÂNCIA DO SERVIÇO
+  // ATUALIZADO: Usando a URL do seu Config.dart
+  final String _baseUrl = Config.apiUrl;
   final TokenStorageService _tokenStorage = TokenStorageService();
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse('${Config.apiUrl}/login/token');
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'username': email,
-          'password': password,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final token = data['access_token'];
-
-        // print('Login bem-sucedido. Token recebido: $token');
-
-        // 3. SUBSTITUA O 'TODO' PELA CHAMADA REAL PARA SALVAR O TOKEN
-        await _tokenStorage.saveToken(token);
-
-        return {'success': true, 'token': token};
-      } else {
-        final errorData = json.decode(response.body);
-        final errorMessage = errorData['detail'] ?? 'Erro desconhecido ao tentar fazer login.';
-        return {'success': false, 'error': errorMessage};
-      }
-    } catch (e) {
-      print('Erro de conexão: $e');
-      return {'success': false, 'error': 'Não foi possível conectar ao servidor.'};
-    }
-  }
-
-  // O método de registro continua igual...
   Future<Map<String, dynamic>> register({
     required String nome,
     required String email,
     required String password,
   }) async {
-    final url = Uri.parse('${Config.apiUrl}/usuarios/');
     try {
       final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'nome': nome,
-          'email': email,
-          'senha': password,
-        }),
+        Uri.parse("$_baseUrl/usuarios/"),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'nome': nome, 'email': email, 'senha': password}),
       );
+      final responseBody = jsonDecode(response.body);
+
       if (response.statusCode == 201) {
-        return {
-          'success': true,
-          'message': 'Conta criada com sucesso! Por favor, faça o login.'
-        };
+        return {'success': true, 'email': responseBody['email']};
       } else {
-        final errorData = json.decode(response.body);
-        final errorMessage = errorData['detail'] ?? 'Erro desconhecido ao tentar se registrar.';
-        return {'success': false, 'error': errorMessage};
+        return {'success': false, 'error': responseBody['detail'] ?? 'Erro desconhecido.'};
       }
     } catch (e) {
-      print('Erro de conexão no registro: $e');
-      return {'success': false, 'error': 'Não foi possível conectar ao servidor.'};
+      return {'success': false, 'error': 'Não foi possível conectar à API.'};
     }
   }
 
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$_baseUrl/login/token"),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {'username': email, 'password': password},
+      );
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 202) { // 2FA é necessário
+        return {'success': true, 'requires_2fa': true, 'temp_token': responseBody['temp_token']};
+      } else if (response.statusCode == 200) { // Login direto
+        await _tokenStorage.saveToken(responseBody['access_token']);
+        return {'success': true, 'requires_2fa': false};
+      } else if (response.statusCode == 403) { // E-mail não verificado
+        return {'success': false, 'error': responseBody['detail'], 'requires_email_verification': true};
+      } else { // Outros erros (ex: senha incorreta)
+        return {'success': false, 'error': responseBody['detail'] ?? 'Credenciais inválidas.'};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Não foi possível conectar à API.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyEmail(String email, String code) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$_baseUrl/usuarios/verify-email"),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'email': email, 'code': code}),
+      );
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': responseBody['message']};
+      } else {
+        return {'success': false, 'error': responseBody['detail']};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Não foi possível conectar à API.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> verify2faLogin(String tempToken, String code) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$_baseUrl/login/token/2fa"),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'temp_token': tempToken, 'code': code}),
+      );
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        await _tokenStorage.saveToken(responseBody['access_token']);
+        return {'success': true};
+      } else {
+        return {'success': false, 'error': responseBody['detail']};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Não foi possível conectar à API.'};
+    }
+  }
+
+  // ATUALIZADO: O método de logout agora chama o Provider
   Future<void> logout(BuildContext context) async {
+    // A chamada à API para invalidar o token no backend (se houver) iria aqui
 
-    final usuariosLogadosProvider = Provider.of<UsuariosLogados>(context, listen: false);
-    await usuariosLogadosProvider.logout();
-
-    // 1. Limpar o token do armazenamento seguro
-    await _tokenStorage.deleteToken();
-
-    // 2. (Opcional) Chamar a API para invalidar o token no backend
-    // final response = await http.post(Uri.parse('${Config.apiUrl}/logout'), headers: ...);
-    // if (response.statusCode == 200) { ... }
-
-    // 3. Navegar para a tela de login e remover todas as telas anteriores
-    // Usamos um serviço de navegação para fazer isso sem um BuildContext
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const AuthScreen()),
-          (Route<dynamic> route) => false,
-    );
+    // ATUALIZADO: Usa o método de logout da sua classe UsuariosLogados
+    final userProvider = Provider.of<UsuariosLogados>(context, listen: false);
+    await userProvider.logout();
   }
 }
