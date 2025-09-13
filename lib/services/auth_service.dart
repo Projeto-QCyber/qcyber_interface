@@ -110,4 +110,52 @@ class AuthService {
     final userProvider = Provider.of<UsuariosLogados>(context, listen: false);
     await userProvider.logout();
   }
+
+  Future<bool> fetchAndSetUser(BuildContext context) async {
+    final token = await _tokenStorage.getToken();
+    if (token == null) return false;
+
+    try {
+      final response = await http.get(
+        Uri.parse("$_baseUrl/usuarios/me"), // Chama a nova rota /me
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+        // Atualiza o provider com os dados reais do usuário
+        Provider.of<UsuariosLogados>(context, listen: false).atualizarUsuarioLogado(
+          id: userData['id'],
+          nome: userData['nome'],
+          isAdmin: userData['is_admin'] ?? false,
+        );
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print("Erro ao buscar dados do usuário: $e");
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> requestPasswordReset(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$_baseUrl/usuarios/request-password-reset"),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'email': email}),
+      );
+
+      // A API sempre retorna 200 OK para evitar vazar informações
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        return {'success': true, 'message': responseBody['message']};
+      } else {
+        // Mesmo em outros casos, retornamos uma mensagem genérica
+        return {'success': false, 'error': 'Ocorreu um erro. Tente novamente.'};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Não foi possível conectar à API.'};
+    }
+  }
 }

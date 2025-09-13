@@ -1,0 +1,200 @@
+// lib/screens/settings_screen.dart
+import 'package:flutter/material.dart';
+import 'package:zeropoint/_core/config.dart';
+import 'package:zeropoint/_core/my_colors.dart';
+import 'package:zeropoint/services/settings_service.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final SettingsService _settingsService = SettingsService();
+  final _formKey = GlobalKey<FormState>();
+
+  // MUDANÇA 1: Variáveis de estado para controlar o carregamento e os dados
+  bool _isPageLoading = true; // Para o loading inicial da página
+  bool _isSaving = false; // Para o loading do botão de salvar
+  Map<String, String>? _settingsData;
+  String? _error;
+
+  // Controllers para cada campo do formulário
+  final _serverController = TextEditingController();
+  final _portController = TextEditingController();
+  final _userController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _senderNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // MUDANÇA 2: Chamamos uma função para carregar os dados iniciais
+    _loadInitialData();
+  }
+
+  // MUDANÇA 3: Nova função para carregar e popular os dados
+  Future<void> _loadInitialData() async {
+    try {
+      final settings = await _settingsService.getSettings();
+      if (mounted) {
+        setState(() {
+          _settingsData = settings;
+          _populateControllers(_settingsData!);
+          _isPageLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = "Falha ao carregar configurações.";
+          _isPageLoading = false;
+        });
+      }
+    }
+  }
+
+  void _populateControllers(Map<String, String> settings) {
+    _serverController.text = settings['SMTP_SERVER'] ?? '';
+    _portController.text = settings['SMTP_PORT'] ?? '';
+    _userController.text = settings['SMTP_USER'] ?? '';
+    _passwordController.text = settings['SMTP_PASSWORD'] ?? '';
+    _senderNameController.text = settings['SMTP_SENDER_NAME'] ?? '';
+  }
+
+  // MUDANÇA 4: Método de salvar atualizado para uma experiência suave
+  Future<void> _saveSettings() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSaving = true);
+
+    final newSettings = {
+      'SMTP_SERVER': _serverController.text,
+      'SMTP_PORT': _portController.text,
+      'SMTP_USER': _userController.text,
+      'SMTP_PASSWORD': _passwordController.text,
+      'SMTP_SENDER_NAME': _senderNameController.text,
+    };
+
+    final success = await _settingsService.updateSettings(newSettings);
+
+    if (mounted) {
+      if (success) {
+        // Apenas atualizamos nossos dados locais com o que acabamos de salvar.
+        // Não há necessidade de buscar na API de novo, economizando uma chamada de rede.
+        setState(() {
+          _settingsData = newSettings;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Configurações salvas com sucesso!'),
+          backgroundColor: MyColors.success_qcyber,
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Falha ao salvar.'),
+          backgroundColor: MyColors.error_qcyber,
+        ));
+      }
+      setState(() => _isSaving = false);
+    }
+  }
+
+  InputDecoration _inputDecoration(String label) => InputDecoration(
+    labelText: label,
+    labelStyle: const TextStyle(color: MyColors.textSecondary_qcyber),
+    filled: true,
+    fillColor: MyColors.background_qcyber,
+    border: const UnderlineInputBorder(borderSide: BorderSide(color: MyColors.border_qcyber)),
+    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: MyColors.primary_qcyber, width: 2)),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Parâmetros do Sistema'),
+        backgroundColor: MyColors.primary_qcyber,
+        titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
+        iconTheme: const IconThemeData(color: MyColors.textOnPrimary_qcyber),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(Config.logoBranca, width: 100),
+          ),
+        ],
+      ),
+      backgroundColor: MyColors.background_qcyber,
+      // MUDANÇA 5: O body não usa mais FutureBuilder
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isPageLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return Center(child: Text(_error!, style: const TextStyle(color: MyColors.error_qcyber)));
+    }
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Card(
+              color: MyColors.card_qcyber,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: MyColors.border_qcyber),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Configurações de E-mail (SMTP)',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber),
+                      ),
+                      const Divider(height: 24, color: MyColors.border_qcyber),
+                      TextFormField(controller: _serverController, decoration: _inputDecoration('Servidor SMTP'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      const SizedBox(height: 16),
+                      TextFormField(controller: _portController, decoration: _inputDecoration('Porta SMTP'), keyboardType: TextInputType.number, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      const SizedBox(height: 16),
+                      TextFormField(controller: _userController, decoration: _inputDecoration('Usuário (Email)'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      const SizedBox(height: 16),
+                      TextFormField(controller: _passwordController, decoration: _inputDecoration('Senha de App'), obscureText: true, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      const SizedBox(height: 16),
+                      TextFormField(controller: _senderNameController, decoration: _inputDecoration('Nome do Remetente'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      const SizedBox(height: 32),
+                      if (_isSaving)
+                        const Center(child: CircularProgressIndicator())
+                      else
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.save),
+                          label: const Text('Salvar Alterações'),
+                          onPressed: _saveSettings,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Image.asset(Config.logoAzul, height: 40, fit: BoxFit.contain),
+          ),
+        ),
+      ],
+    );
+  }
+}

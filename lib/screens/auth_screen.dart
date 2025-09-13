@@ -5,6 +5,7 @@ import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/enums/verification_type_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/screens/MenuPage.dart';
+import 'package:zeropoint/screens/user/forgot_password_screen.dart';
 import 'package:zeropoint/screens/verification_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
@@ -159,6 +160,18 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextButton(
                         onPressed: () { if (_isLoading) return; setState(() => _isLoginMode = !_isLoginMode); },
                         child: Text(_isLoginMode ? "Ainda não tem conta? Crie uma" : "Já tem uma conta? Entre", style: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8))),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (_isLoading) return;
+                          Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const ForgotPasswordScreen())
+                          );
+                        },
+                        child: Text(
+                          'Esqueceu sua senha?',
+                          style: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.7)),
+                        ),
                       ),
                     ],
                   ),

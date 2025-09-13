@@ -1,27 +1,26 @@
+// lib/screens/MenuPage.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/controllers/dashboard_action_handler.dart';
+import 'package:zeropoint/objetos/UsuariosLogados.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
-import 'package:zeropoint/screens/ameacas_screen.dart';
 import 'package:zeropoint/screens/auth_screen.dart';
 import 'package:zeropoint/screens/device_management_screen.dart';
 import 'package:zeropoint/screens/generic_history_screen.dart';
+import 'package:zeropoint/screens/user/user_list_screen.dart';
+import 'package:zeropoint/screens/settings_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
-
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_riscos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/kpi_section.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/line_chart_detections.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/pie_chart_ataques.dart';
-
 import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
-// **ATUALIZADO**: O nome do arquivo foi alterado na sugestão
-// import 'package:zeropoint/widgets/handlers/dashboard_action_handler.dart';
-
 
 enum DateRangePreset { last24h, last7d, last30d, custom }
 
@@ -34,9 +33,12 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   final DashboardService _dashboardService = DashboardService();
-  late Future<DashboardSummary> _dashboardFuture;
-  int _touchedIndex = -1;
+  final AuthService _authService = AuthService();
 
+  // MUDANÇA 1: Removido o 'late'
+  Future<DashboardSummary>? _dashboardFuture;
+
+  int _touchedIndex = -1;
   DateRangePreset _selectedPreset = DateRangePreset.last24h;
   DateTime? _customStartDate;
   DateTime? _customEndDate;
@@ -44,17 +46,21 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    // MUDANÇA 2: As duas chamadas são feitas aqui
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Busca os dados do usuário em segundo plano, sem bloquear a UI
+      _authService.fetchAndSetUser(context);
+    });
+    // Inicializa o futuro do dashboard imediatamente
+    _fetchDashboardData();
   }
 
-  // **ATUALIZADO**: Lógica de cálculo de data movida para uma função separada
   Map<String, DateTime?> _getCurrentDateRange() {
     DateTime? startDate;
     DateTime? endDate;
 
     switch (_selectedPreset) {
       case DateRangePreset.last24h:
-      // O backend trata `null` como últimas 24h
         break;
       case DateRangePreset.last7d:
         endDate = DateTime.now();
@@ -66,17 +72,18 @@ class _MenuPageState extends State<MenuPage> {
         break;
       case DateRangePreset.custom:
         startDate = _customStartDate;
-        // Adiciona 1 dia para incluir o dia final completo na busca da API
         endDate = _customEndDate?.add(const Duration(days: 1));
         break;
     }
     return {'startDate': startDate, 'endDate': endDate};
   }
 
-  Future<void> _fetchData() async  {
+  // MUDANÇA 3: A função de fetch agora é mais direta
+  Future<void> _fetchDashboardData() async {
     if (mounted) {
       final dateRange = _getCurrentDateRange();
       setState(() {
+        // Apenas atribui um novo futuro à variável. O FutureBuilder cuidará do resto.
         _dashboardFuture = _dashboardService.fetchDashboardSummary(
           startDate: dateRange['startDate'],
           endDate: dateRange['endDate'],
@@ -113,7 +120,7 @@ class _MenuPageState extends State<MenuPage> {
         _customStartDate = picked.start;
         _customEndDate = picked.end;
       });
-      _fetchData();
+      _fetchDashboardData();
     }
   }
 
@@ -123,13 +130,9 @@ class _MenuPageState extends State<MenuPage> {
       context: context,
       dashboardService: _dashboardService,
     );
-
-    // **NOVO**: Obtém o intervalo de datas atual para passar para o handler
     final dateRange = _getCurrentDateRange();
     final startDate = dateRange['startDate'];
     final endDate = dateRange['endDate'];
-
-
 
     return Scaffold(
       appBar: AppBar(
@@ -145,18 +148,20 @@ class _MenuPageState extends State<MenuPage> {
         children: [
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _fetchData,
+              onRefresh: _fetchDashboardData,
               child: FutureBuilder<DashboardSummary>(
                 future: _dashboardFuture,
                 builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) { return const Center(child: CircularProgressIndicator()); }
+
                   if (snapshot.hasError) {
+                    // MUDANÇA 4: Usamos a flag do snapshot para evitar loop de dialog
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ConnectionErrorDialog.show(context, onTryAgain: _fetchData);
+                      ConnectionErrorDialog.show(context, onTryAgain: _fetchDashboardData);
                     });
                     return const Center(child: Text('Tentando reconectar...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
                   }
 
-                  if (snapshot.connectionState == ConnectionState.waiting) { return const Center(child: CircularProgressIndicator()); }
                   if (!snapshot.hasData) { return const Center(child: Text('Nenhum dado encontrado.', style: TextStyle(color: MyColors.textPrimary_qcyber))); }
 
                   final dashboardData = snapshot.data!;
@@ -171,49 +176,24 @@ class _MenuPageState extends State<MenuPage> {
                             const SizedBox(height: 16),
                             KpiSection(
                               kpis: dashboardData.kpis,
-                              // **ATUALIZADO**: Passa os parâmetros para o handler
-                              onDeteccoesTapped: () => actionHandler.showDeteccoesDetails(
-                                kpiCount: dashboardData.kpis.totalDeteccoes ?? 0,
-                                startDate: startDate,
-                                endDate: endDate,
-                              ),
-                              onAcoesTapped: () => actionHandler.showAcoesDetails(
-                                kpiCount: dashboardData.kpis.acoesExecutadas ?? 0,
-                                startDate: startDate,
-                                endDate: endDate,
-                              ),
-                              onIncidentesTapped: () => actionHandler.showIncidentesDetails(
-                                kpiCount: dashboardData.kpis.incidentesCriados ?? 0,
-                                startDate: startDate,
-                                endDate: endDate,
-                              ),
-                              onDispositivosTapped: () => actionHandler.showDispositivosDetails(
-                                kpiCount: dashboardData.kpis.dispositivosAtivos ?? 0,
-                              ),
+                              onDeteccoesTapped: () => actionHandler.showDeteccoesDetails(kpiCount: dashboardData.kpis.totalDeteccoes, startDate: startDate, endDate: endDate),
+                              onAcoesTapped: () => actionHandler.showAcoesDetails(kpiCount: dashboardData.kpis.acoesExecutadas, startDate: startDate, endDate: endDate),
+                              onIncidentesTapped: () => actionHandler.showIncidentesDetails(kpiCount: dashboardData.kpis.incidentesCriados, startDate: startDate, endDate: endDate),
+                              onDispositivosTapped: () => actionHandler.showDispositivosDetails(kpiCount: dashboardData.kpis.dispositivosAtivos),
                             ),
                             const SizedBox(height: 24),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                    child: PieChartAtaques(
-                                      ataques: dashboardData.ataquesPorTipo,
-                                      touchedIndex: _touchedIndex,
-                                      onTouch: (index) => setState(() => _touchedIndex = index),
-                                    )
-                                ),
+                                Expanded(child: PieChartAtaques(ataques: dashboardData.ataquesPorTipo, touchedIndex: _touchedIndex, onTouch: (index) => setState(() => _touchedIndex = index))),
                                 const SizedBox(width: 16),
                                 Expanded(child: BarChartRiscos(data: dashboardData.incidentesPorRisco)),
                               ],
                             ),
                             const SizedBox(height: 24),
-                            // Volume de Detecções
                             LineChartDetections(data: dashboardData.deteccoesPorHora),
                             const SizedBox(height: 24),
                             BarChartDispositivos(data: dashboardData.dispositivosAtacados),
-                            const SizedBox(height: 24),
-                            // DataTableSection(deteccoes: dashboardData.ultimasDeteccoes),
-                            // const SizedBox(height: 40),
                           ],
                         ),
                       ),
@@ -248,6 +228,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildDateFilter() {
+    // ... (código do filtro de data sem alterações)
     return Center(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -265,9 +246,9 @@ class _MenuPageState extends State<MenuPage> {
                 _selectedPreset == DateRangePreset.custom && _customStartDate != null
                     ? '${DateFormat('dd/MM/yy').format(_customStartDate!)} - ${DateFormat('dd/MM/yy').format(_customEndDate!)}'
                     : 'Personalizado',
-                style: TextStyle(color: _selectedPreset == DateRangePreset.custom ? MyColors.textPrimary_qcyber : MyColors.textPrimary_qcyber),
+                style: const TextStyle(color: MyColors.textPrimary_qcyber),
               ),
-              backgroundColor: _selectedPreset == DateRangePreset.custom ? MyColors.primary_qcyber : MyColors.card_qcyber,
+              backgroundColor: _selectedPreset == DateRangePreset.custom ? MyColors.primary_qcyber.withOpacity(0.7) : MyColors.card_qcyber,
               onPressed: () => _selectCustomDateRange(context),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: const BorderSide(color: MyColors.border_qcyber)),
             ),
@@ -278,76 +259,93 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildFilterChip(DateRangePreset preset, String label) {
+    // ... (código do chip sem alterações)
     final isSelected = _selectedPreset == preset;
     return FilterChip(
-      label: Text(label, style: TextStyle(color: isSelected ? MyColors.textPrimary_qcyber : MyColors.textPrimary_qcyber)),
+      label: Text(label, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
       selected: isSelected,
       onSelected: (bool selected) {
         if (selected) {
           setState(() => _selectedPreset = preset);
-          _fetchData();
+          _fetchDashboardData();
         }
       },
       backgroundColor: MyColors.card_qcyber,
-      selectedColor: MyColors.primary_qcyber,
+      selectedColor: MyColors.primary_qcyber.withOpacity(0.7),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: const BorderSide(color: MyColors.border_qcyber)),
     );
   }
 
-  final AuthService _authService = AuthService();
   Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      backgroundColor: MyColors.card_qcyber,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: MyColors.primary_qcyber),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    // MUDANÇA 5: Usamos um Consumer para reagir às mudanças do Provider
+    return Consumer<UsuariosLogados>(
+        builder: (context, userProvider, child) {
+          return Drawer(
+            backgroundColor: MyColors.card_qcyber,
+            child: ListView(
+              padding: EdgeInsets.zero,
               children: [
-                Image.asset(Config.logoBranca, height: 40),
-                const SizedBox(height: 16),
-                const Text('Menu de Navegação', style: TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20)),
+                DrawerHeader(
+                  decoration: const BoxDecoration(color: MyColors.primary_qcyber),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(Config.logoBranca, height: 40),
+                      const SizedBox(height: 16),
+                      Text(userProvider.nome ?? 'Menu de Navegação', style: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20)),
+                    ],
+                  ),
+                ),
+                _buildDrawerItem(icon: Icons.dashboard, text: "Dashboard", onTap: () { Navigator.pop(context); }),
+                _buildDrawerItem(
+                    icon: Icons.dns,
+                    text: "Dispositivos",
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const DeviceManagementScreen()));
+                    }
+                ),
+                _buildDrawerItem(
+                    icon: Icons.shield_outlined,
+                    text: "Histórico por Ameaça",
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const GenericHistoryScreen(filterType: HistoryFilterType.threat)));
+                    }
+                ),
+                if (userProvider.isAdmin) ...[
+                  const Divider(color: MyColors.border_qcyber),
+                  _buildDrawerItem(
+                      icon: Icons.people,
+                      text: "Gestão de Usuários",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const UserListScreen()));
+                      }
+                  ),
+                  _buildDrawerItem(
+                      icon: Icons.settings,
+                      text: "Parâmetros do Sistema",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+                      }
+                  ),
+                ],
+                const Divider(color: MyColors.border_qcyber),
+                _buildDrawerItem(icon: Icons.logout, text: "Sair",
+                    onTap: () {
+                      _authService.logout(context);
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const AuthScreen()),
+                            (route) => false,
+                      );
+                    }),
               ],
             ),
-          ),
-          _buildDrawerItem(icon: Icons.dashboard, text: "Dashboard", onTap: () { Navigator.pop(context); }),
-          _buildDrawerItem(
-              icon: Icons.dns,
-              text: "Dispositivos", // Simplificado para "Dispositivos"
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const DeviceManagementScreen()));
-              }
-          ),
-          _buildDrawerItem(
-              icon: Icons.shield_outlined,
-              text: "Histórico por Ameaça",
-              onTap: () {
-                Navigator.pop(context);
-                // Navega para a tela de histórico em modo "Ameaça"
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const GenericHistoryScreen(filterType: HistoryFilterType.threat)));
-              }
-          ),
-          const Divider(color: MyColors.border_qcyber),
-          _buildDrawerItem(icon: Icons.logout, text: "Sair",
-              onTap: () {
-                // 1. Faz o logout
-                AuthService().logout(context); // Usamos uma nova instância ou o Provider
-
-                // 2. Garante que o drawer feche
-                Navigator.of(context).pop();
-
-                // 3. Navega para a tela de Auth e remove todas as outras telas
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const AuthScreen()),
-                      (route) => false,
-                );
-              }),
-        ],
-      ),
+          );
+        }
     );
   }
 
