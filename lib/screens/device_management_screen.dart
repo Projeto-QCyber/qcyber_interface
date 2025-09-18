@@ -222,7 +222,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(d.status, style: TextStyle(color: d.status == 'Ativo' ? MyColors.success_qcyber : MyColors.error_qcyber)),
+                                  Text(d.status.toString(), style: TextStyle(color: d.status == 'Ativo' ? MyColors.success_qcyber : MyColors.error_qcyber)),
                                   IconButton(
                                     icon: const Icon(Icons.edit, size: 20, color: MyColors.textSecondary_qcyber),
                                     onPressed: () => _showDeviceDialog(dispositivo: d),

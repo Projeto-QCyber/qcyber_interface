@@ -2,7 +2,7 @@ class Config {
   /// -> PRODUCAO
   //static const String apiUrl = '';
   /// -> DEV
-  static const String apiUrl = 'http://127.0.0.1:8000';
+  static const String apiUrl = 'http://127.0.0.1:8000/qcyberapi';
 
 
   /// -> LOGO DO SISTEMA
