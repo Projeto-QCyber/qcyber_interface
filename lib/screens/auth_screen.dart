@@ -123,7 +123,7 @@ class _AuthScreenState extends State<AuthScreen> {
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
           children: [
-            Padding(padding: const EdgeInsets.symmetric(vertical: 20.0), child: Image.asset(Config.logoAzul, height: 60)),
+            Padding(padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 16.0), child: Image.asset(Config.logoAzul, height: 60)),
             Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 500),
@@ -155,11 +155,11 @@ class _AuthScreenState extends State<AuthScreen> {
                       if (_isLoading) const Center(child: CircularProgressIndicator(color: Colors.white)) else ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: MyColors.background_qcyber, foregroundColor: MyColors.primary_qcyber, padding: const EdgeInsets.symmetric(vertical: 16)),
                         onPressed: _submit,
-                        child: Text(_isLoginMode ? "Entrar" : "Criar Conta"),
+                        child: Text(_isLoginMode ? "Entrar" : "Criar Conta", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       TextButton(
                         onPressed: () { if (_isLoading) return; setState(() => _isLoginMode = !_isLoginMode); },
-                        child: Text(_isLoginMode ? "Ainda não tem conta? Crie uma" : "Já tem uma conta? Entre", style: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8))),
+                        child: Text(_isLoginMode ? "Ainda não tem conta? Crie uma" : "Já tem uma conta? Entre", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -178,6 +178,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
             ),
+
+            const SizedBox(height: 8),
+            Text('Versão 0.1.0', textAlign: TextAlign.center, style: TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 12)),
+            const SizedBox(height: 20),
           ],
         ),
       ),

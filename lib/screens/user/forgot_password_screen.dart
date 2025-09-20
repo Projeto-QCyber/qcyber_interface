@@ -109,7 +109,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 padding: const EdgeInsets.symmetric(vertical: 16)
                             ),
                             onPressed: _sendResetLink,
-                            child: const Text('Enviar Link de Recuperação'),
+                            child: const Text('Enviar Link de Recuperação',style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                           ),
                       ],
                     ),

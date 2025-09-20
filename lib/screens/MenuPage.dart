@@ -240,6 +240,7 @@ class _MenuPageState extends State<MenuPage> {
             _buildFilterChip(DateRangePreset.last7d, 'Últimos 7 dias'),
             const SizedBox(width: 8),
             _buildFilterChip(DateRangePreset.last30d, 'Últimos 30 dias'),
+            /// CONSULTA COM FILTRO
             const SizedBox(width: 8),
             ActionChip(
               label: Text(

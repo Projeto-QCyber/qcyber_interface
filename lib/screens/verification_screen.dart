@@ -142,7 +142,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       if (_isLoading) const Center(child: CircularProgressIndicator(color: Colors.white)) else ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: MyColors.background_qcyber, foregroundColor: MyColors.primary_qcyber, padding: const EdgeInsets.symmetric(vertical: 16)),
                         onPressed: _submitCode,
-                        child: const Text('Verificar'),
+                        child: const Text('Verificar', style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       if (isEmailVerification) ...[
                         const SizedBox(height: 8),
