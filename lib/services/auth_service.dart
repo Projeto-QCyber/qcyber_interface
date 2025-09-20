@@ -158,4 +158,31 @@ class AuthService {
       return {'success': false, 'error': 'Não foi possível conectar à API.'};
     }
   }
+
+
+  Future<Map<String, dynamic>> performPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$_baseUrl/usuarios/perform-password-reset"),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({
+          'token': token,
+          'nova_senha': newPassword,
+        }),
+      );
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': responseBody['message']};
+      } else {
+        // A API pode retornar 400 para token inválido/expirado
+        return {'success': false, 'error': responseBody['detail'] ?? 'Não foi possível redefinir a senha.'};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Não foi possível conectar à API.'};
+    }
+  }
 }

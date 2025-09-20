@@ -6,6 +6,7 @@ import 'package:zeropoint/objetos/UsuariosLogados.dart';
 import 'package:zeropoint/screens/MenuPage.dart';
 import 'package:zeropoint/screens/auth_or_home_page.dart'; // 1. IMPORTE a nova tela
 import 'package:zeropoint/screens/auth_screen.dart';
+import 'package:zeropoint/screens/reset_password_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
 void main() async {
@@ -60,8 +61,28 @@ class MyApp extends StatelessWidget {
         '/auth': (context) => const AuthScreen(),
         '/home': (context) => const MenuPage(),
       },
+
+      onGenerateRoute: (settings) {
+        // Verifica se a URL acessada é a de redefinir senha
+        if (settings.name != null &&
+            settings.name!.startsWith('/reset-password')) {
+          final uri = Uri.parse(settings.name!);
+          // Pega o valor do parâmetro 'token' da URL
+          final token = uri.queryParameters['token'];
+
+          if (token != null) {
+            // Se encontrou um token, cria a rota para a tela correta
+            return MaterialPageRoute(
+              builder: (context) => ResetPasswordScreen(token: token),
+            );
+          }
+        }
+        // Para qualquer outra rota, deixa o Flutter usar o comportamento padrão (o `routes` acima)
+        return null;
+      },
     );
   }
+
 }
 
 // A classe GerenciadorTelas pode ser removida se não for mais usada em outro lugar.
