@@ -21,6 +21,8 @@ import 'package:zeropoint/widgets/dashboard_widgets/kpi_section.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/line_chart_detections.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/pie_chart_ataques.dart';
 import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
+// ADICIONE A IMPORTAÇÃO DO NOVO WIDGET
+import 'package:zeropoint/widgets/dialogs/custom_date_range_picker.dart';
 
 enum DateRangePreset { last24h, last7d, last30d, custom }
 
@@ -35,7 +37,6 @@ class _MenuPageState extends State<MenuPage> {
   final DashboardService _dashboardService = DashboardService();
   final AuthService _authService = AuthService();
 
-  // MUDANÇA 1: Removido o 'late'
   Future<DashboardSummary>? _dashboardFuture;
 
   int _touchedIndex = -1;
@@ -46,12 +47,9 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
-    // MUDANÇA 2: As duas chamadas são feitas aqui
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Busca os dados do usuário em segundo plano, sem bloquear a UI
       _authService.fetchAndSetUser(context);
     });
-    // Inicializa o futuro do dashboard imediatamente
     _fetchDashboardData();
   }
 
@@ -61,7 +59,7 @@ class _MenuPageState extends State<MenuPage> {
 
     switch (_selectedPreset) {
       case DateRangePreset.last24h:
-        break;
+        break; // A API usará o padrão de 24h se for nulo
       case DateRangePreset.last7d:
         endDate = DateTime.now();
         startDate = endDate.subtract(const Duration(days: 7));
@@ -72,18 +70,17 @@ class _MenuPageState extends State<MenuPage> {
         break;
       case DateRangePreset.custom:
         startDate = _customStartDate;
+        // Adiciona 1 dia para incluir o dia inteiro na consulta do backend
         endDate = _customEndDate?.add(const Duration(days: 1));
         break;
     }
     return {'startDate': startDate, 'endDate': endDate};
   }
 
-  // MUDANÇA 3: A função de fetch agora é mais direta
   Future<void> _fetchDashboardData() async {
     if (mounted) {
       final dateRange = _getCurrentDateRange();
       setState(() {
-        // Apenas atribui um novo futuro à variável. O FutureBuilder cuidará do resto.
         _dashboardFuture = _dashboardService.fetchDashboardSummary(
           startDate: dateRange['startDate'],
           endDate: dateRange['endDate'],
@@ -92,24 +89,14 @@ class _MenuPageState extends State<MenuPage> {
     }
   }
 
+  // MÉTODO ATUALIZADO PARA USAR O NOVO WIDGET
   Future<void> _selectCustomDateRange(BuildContext context) async {
-    final picked = await showDateRangePicker(
+    final picked = await showDialog<DateTimeRange>(
       context: context,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      initialDateRange: _customStartDate != null && _customEndDate != null
-          ? DateTimeRange(start: _customStartDate!, end: _customEndDate!)
-          : null,
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: MyColors.primary_qcyber,
-              onPrimary: MyColors.textOnPrimary_qcyber,
-              onSurface: MyColors.textPrimary_qcyber,
-            ),
-          ),
-          child: child!,
+      builder: (BuildContext context) {
+        return CustomDateRangePicker(
+          initialStartDate: _customStartDate,
+          initialEndDate: _customEndDate,
         );
       },
     );
@@ -155,7 +142,6 @@ class _MenuPageState extends State<MenuPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) { return const Center(child: CircularProgressIndicator()); }
 
                   if (snapshot.hasError) {
-                    // MUDANÇA 4: Usamos a flag do snapshot para evitar loop de dialog
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       ConnectionErrorDialog.show(context, onTryAgain: _fetchDashboardData);
                     });
@@ -228,7 +214,6 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildDateFilter() {
-    // ... (código do filtro de data sem alterações)
     return Center(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -240,7 +225,6 @@ class _MenuPageState extends State<MenuPage> {
             _buildFilterChip(DateRangePreset.last7d, 'Últimos 7 dias'),
             const SizedBox(width: 8),
             _buildFilterChip(DateRangePreset.last30d, 'Últimos 30 dias'),
-            /// CONSULTA COM FILTRO
             const SizedBox(width: 8),
             ActionChip(
               label: Text(
@@ -260,7 +244,6 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildFilterChip(DateRangePreset preset, String label) {
-    // ... (código do chip sem alterações)
     final isSelected = _selectedPreset == preset;
     return FilterChip(
       label: Text(label, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
@@ -278,7 +261,6 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildDrawer(BuildContext context) {
-    // MUDANÇA 5: Usamos um Consumer para reagir às mudanças do Provider
     return Consumer<UsuariosLogados>(
         builder: (context, userProvider, child) {
           return Drawer(

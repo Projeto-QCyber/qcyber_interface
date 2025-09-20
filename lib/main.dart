@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+// A IMPORTAÇÃO CORRETA (agora vai funcionar)
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:zeropoint/_core/Config.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/objetos/UsuariosLogados.dart';
 import 'package:zeropoint/screens/MenuPage.dart';
-import 'package:zeropoint/screens/auth_or_home_page.dart'; // 1. IMPORTE a nova tela
+import 'package:zeropoint/screens/auth_or_home_page.dart';
 import 'package:zeropoint/screens/auth_screen.dart';
 import 'package:zeropoint/screens/reset_password_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +36,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: Config.nomeDaAplicacao,
       debugShowCheckedModeBanner: false,
+
+
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'), // Português (Brasil)
+        // Adicione outras linguagens que você queira suportar no futuro
+        // Locale('en', 'US'), // Inglês
+      ],
+
+
       theme: ThemeData(
         // Seu tema continua o mesmo...
         scaffoldBackgroundColor: MyColors.background_qcyber,
