@@ -1,6 +1,6 @@
 class Config {
   /// -> PRODUCAO
-  //static const String apiUrl = '';
+  // static const String apiUrl = 'https://teste.lesc.ufc.br/qcyberapi/';
   /// -> DEV
   static const String apiUrl = 'http://127.0.0.1:8000/qcyberapi';
 
