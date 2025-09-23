@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:zeropoint/_Core/enums/nivel_risco_enum.dart';
+import 'package:zeropoint/_core/enums/nivel_risco_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/objetos/dashboard/incidentes_por_risco.dart';
 

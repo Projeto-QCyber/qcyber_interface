@@ -12,7 +12,7 @@ import 'package:zeropoint/objetos/UsuariosLogados.dart';
 import 'package:zeropoint/_core/services/token_storage_service.dart'; // Certifique-se que o caminho está correto
 
 class AuthService {
-  // ATUALIZADO: Usando a URL do seu Config.dart
+  // ATUALIZADO: Usando a URL do seu config.dart
   final String _baseUrl = Config.apiUrl;
   final TokenStorageService _tokenStorage = TokenStorageService();
 

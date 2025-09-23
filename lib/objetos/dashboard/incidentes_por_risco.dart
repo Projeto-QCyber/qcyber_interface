@@ -1,4 +1,4 @@
-import 'package:zeropoint/_Core/enums/nivel_risco_enum.dart';
+import 'package:zeropoint/_core/enums/nivel_risco_enum.dart';
 
 class IncidentesPorRisco {
   final NivelRisco nivelRisco;
