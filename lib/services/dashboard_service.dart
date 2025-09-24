@@ -29,10 +29,10 @@ class DashboardService {
   Future<DashboardSummary> fetchDashboardSummary({DateTime? startDate, DateTime? endDate}) async {
     final Map<String, String> queryParameters = {};
     if (startDate != null) {
-      queryParameters['start_date'] = startDate.toIso8601String();
+      queryParameters['start_date'] = startDate.toUtc().toIso8601String();
     }
     if (endDate != null) {
-      queryParameters['end_date'] = endDate.toIso8601String();
+      queryParameters['end_date'] = endDate.toUtc().toIso8601String();
     }
     final uri = Uri.parse('${Config.apiUrl}/dashboard/summary').replace(queryParameters: queryParameters);
 
