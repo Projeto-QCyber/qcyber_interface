@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 
 class KpiDetailsDialog {
-  /// Exibe um diálogo genérico para mostrar detalhes de um KPI.
+  /// Displays a generic dialog to show KPI details.
   ///
-  /// [context] O BuildContext da tela.
-  /// [title] O título do modal.
-  /// [icon] O ícone a ser exibido no topo.
-  /// [iconColor] A cor do ícone.
-  /// [children] A lista de widgets a ser exibida no corpo do modal.
+  /// [context] The BuildContext of the screen.
+  /// [title] The title of the modal.
+  /// [icon] The icon to be displayed at the top.
+  /// [iconColor] The color of the icon.
+  /// [children] The list of widgets to be displayed in the modal body.
   static void show(BuildContext context, {
     required String title,
     required IconData icon,
@@ -31,7 +31,7 @@ class KpiDetailsDialog {
           content: SizedBox(
             width: double.maxFinite,
             child: children.isEmpty
-                ? const Center(child: Text("Nenhum item para exibir.", style: TextStyle(color: MyColors.textSecondary_qcyber)))
+                ? const Center(child: Text("No items to display.", style: TextStyle(color: MyColors.textSecondary_qcyber)))
                 : ListView(
               shrinkWrap: true,
               children: children,
@@ -39,22 +39,22 @@ class KpiDetailsDialog {
           ),
           actions: [
             TextButton(
-              // Use a propriedade 'style' para customizar o botão
+              // Use the 'style' property to customize the button
               style: TextButton.styleFrom(
 
-                // Cor de fundo do botão
+                // Button background color
                 backgroundColor: MyColors.textOnPrimary_qcyber,
-                // Cor do texto (e do efeito de clique)
+                // Text color (and click effect)
                 foregroundColor: MyColors.primary_qcyber,
 
-                // Opcional: se quiser deixar as bordas arredondadas
+                // Optional: if you want rounded corners
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
 
-              // Agora o Text não precisa mais da propriedade style
-              child: const Text('FECHAR'),
+              // Now the Text no longer needs the style property
+              child: const Text('CLOSE'),
 
               onPressed: () {
                 Navigator.of(dialogContext).pop();

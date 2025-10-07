@@ -36,7 +36,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(success ? 'Permissões atualizadas com sucesso!' : 'Falha ao atualizar.'),
+        content: Text(success ? 'Permissions updated successfully!' : 'Failed to update.'),
         backgroundColor: success ? MyColors.success_qcyber : MyColors.error_qcyber,
       ));
       if (success) Navigator.pop(context, true);
@@ -49,11 +49,11 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirmar Ação'),
-        content: Text('Tem certeza que deseja redefinir a senha para ${widget.user.nome}? Uma senha temporária será enviada para o e-mail do usuário.'),
+        title: const Text('Confirm Action'),
+        content: Text("Are you sure you want to reset the password for ${widget.user.nome}? A temporary password will be sent to the user's email."),
         actions: [
-          TextButton(child: const Text('Cancelar'), onPressed: () => Navigator.of(ctx).pop(false)),
-          TextButton(child: const Text('Confirmar'), onPressed: () => Navigator.of(ctx).pop(true)),
+          TextButton(child: const Text('Cancel'), onPressed: () => Navigator.of(ctx).pop(false)),
+          TextButton(child: const Text('Confirm'), onPressed: () => Navigator.of(ctx).pop(true)),
         ],
       ),
     );
@@ -66,7 +66,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(success ? 'E-mail com a nova senha enviado!' : 'Falha ao redefinir a senha.'),
+        content: Text(success ? 'Email with the new password has been sent!' : 'Failed to reset password.'),
         backgroundColor: success ? MyColors.success_qcyber : MyColors.error_qcyber,
       ));
     }
@@ -97,27 +97,27 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildSectionCard(
-                    title: 'Informações do Usuário',
+                    title: 'User Information',
                     children: [
-                      _buildInfoRow('Nome Completo', widget.user.nome),
+                      _buildInfoRow('Full Name', widget.user.nome),
                       _buildInfoRow('Email', widget.user.email),
-                      _buildInfoRow('Status', widget.user.ativo ? 'Ativo' : 'Inativo'),
+                      _buildInfoRow('Status', widget.user.ativo ? 'Active' : 'Inactive'),
                     ],
                   ),
                   const SizedBox(height: 24),
                   _buildSectionCard(
-                    title: 'Permissões de Acesso',
+                    title: 'Access Permissions',
                     children: [
                       _buildPermissionSwitch(
-                        title: 'Acesso ao Sistema',
-                        subtitle: 'Permite que o usuário faça login no aplicativo.',
+                        title: 'System Access',
+                        subtitle: 'Allows the user to log in to the application.',
                         value: _hasSystemAccess,
                         onChanged: (value) => setState(() => _hasSystemAccess = value),
                       ),
                       const Divider(color: MyColors.border_qcyber),
                       _buildPermissionSwitch(
-                        title: 'Administrador',
-                        subtitle: 'Concede permissões para gerenciar usuários e parâmetros.',
+                        title: 'Administrator',
+                        subtitle: 'Grants permissions to manage users and parameters.',
                         value: _isAdmin,
                         onChanged: (value) => setState(() => _isAdmin = value),
                       ),
@@ -130,7 +130,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   else
                     ElevatedButton.icon(
                       icon: const Icon(Icons.save),
-                      label: const Text('Salvar Alterações'),
+                      label: const Text('Save Changes'),
                       onPressed: _saveChanges,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),

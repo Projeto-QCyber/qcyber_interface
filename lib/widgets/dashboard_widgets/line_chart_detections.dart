@@ -26,7 +26,7 @@ class LineChartDetections extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Volume de Detecções",
+              const Text("Detection Volume",
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -36,8 +36,8 @@ class LineChartDetections extends StatelessWidget {
                   heightFactor: 5,
                   child: Text(
                       data.isEmpty
-                          ? 'Nenhum dado de volume para exibir.'
-                          : 'Dados insuficientes para formar uma linha.',
+                          ? 'No volume data to display.'
+                          : 'Not enough data to form a line.',
                       style:
                       const TextStyle(color: MyColors.textSecondary_qcyber))),
             ],
@@ -60,7 +60,7 @@ class LineChartDetections extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Volume de Detecções",
+            const Text("Detection Volume",
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

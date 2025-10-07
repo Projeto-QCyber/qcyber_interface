@@ -38,7 +38,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     setState(() => _isLoading = false);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(result['message'] ?? (result['success'] ? 'Senha alterada!' : 'Ocorreu um erro.')),
+      content: Text(result['message'] ?? (result['success'] ? 'Password changed successfully!' : 'An error occurred.')),
       backgroundColor: result['success'] ? MyColors.success_qcyber : MyColors.error_qcyber,
     ));
 
@@ -69,7 +69,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return Scaffold(
       backgroundColor: MyColors.background_qcyber,
       appBar: AppBar(
-        title: const Text('Redefinir Senha'),
+        title: const Text('Reset Password'),
         backgroundColor: MyColors.primary_qcyber,
         titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: MyColors.textOnPrimary_qcyber),
@@ -93,10 +93,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Crie uma Nova Senha', textAlign: TextAlign.center, style: titleStyle),
+                  Text('Create a New Password', textAlign: TextAlign.center, style: titleStyle),
                   const SizedBox(height: 16),
                   Text(
-                    'Sua nova senha deve ser forte e diferente das senhas anteriores.',
+                    'Your new password must be strong and different from previous ones.',
                     textAlign: TextAlign.center,
                     style: textStyle.copyWith(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8)),
                   ),
@@ -107,13 +107,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     obscureText: _isPasswordObscured,
                     style: textStyle,
                     decoration: _inputDecoration(
-                      'Nova Senha',
+                      'New Password',
                       suffixIcon: IconButton(
                         icon: Icon(_isPasswordObscured ? Icons.visibility_off : Icons.visibility, color: Colors.white70),
                         onPressed: () => setState(() => _isPasswordObscured = !_isPasswordObscured),
                       ),
                     ),
-                    validator: (v) => (v?.length ?? 0) < 6 ? 'A senha deve ter no mínimo 6 caracteres' : null,
+                    validator: (v) => (v?.length ?? 0) < 6 ? 'Password must be at least 6 characters long' : null,
                   ),
                   const SizedBox(height: 16),
                   // Campo Confirmar Senha
@@ -122,14 +122,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     obscureText: _isConfirmObscured,
                     style: textStyle,
                     decoration: _inputDecoration(
-                      'Confirme a Nova Senha',
+                      'Confirm New Password',
                       suffixIcon: IconButton(
                         icon: Icon(_isConfirmObscured ? Icons.visibility_off : Icons.visibility, color: Colors.white70),
                         onPressed: () => setState(() => _isConfirmObscured = !_isConfirmObscured),
                       ),
                     ),
                     validator: (v) {
-                      if (v != _newPasswordController.text) return 'As senhas não coincidem';
+                      if (v != _newPasswordController.text) return 'Passwords do not match';
                       return null;
                     },
                   ),
@@ -144,7 +144,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       onPressed: _submitNewPassword,
-                      child: const Text('Salvar Nova Senha', style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
+                      child: const Text('Save New Password', style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                     ),
                 ],
               ),

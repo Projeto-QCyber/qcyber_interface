@@ -21,10 +21,10 @@ class BarChartDispositivos extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Dispositivos Mais Atacados", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
+            const Text("Most Attacked Devices", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
             const SizedBox(height: 20),
             if (data.isEmpty)
-              const Center(heightFactor: 5, child: Text('Nenhum dispositivo atacado no período.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
+              const Center(heightFactor: 5, child: Text('No devices attacked in this period.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
             else
               ...data.map((item) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),

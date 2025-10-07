@@ -48,7 +48,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
       }).catchError((error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Erro ao buscar dispositivos: $error"), backgroundColor: Colors.red),
+            SnackBar(content: Text("Error fetching devices: $error"), backgroundColor: Colors.red),
           );
         }
       });
@@ -79,7 +79,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
           backgroundColor: MyColors.card_qcyber,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           title: Text(
-            isEditing ? "Editar Dispositivo" : "Adicionar Dispositivo",
+            isEditing ? "Edit Device" : "Add Device",
             style: const TextStyle(color: MyColors.textPrimary_qcyber),
           ),
           content: Form(
@@ -91,20 +91,20 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                   TextFormField(
                     controller: nomeController,
                     style: const TextStyle(color: MyColors.textPrimary_qcyber),
-                    decoration: const InputDecoration(labelText: 'Nome'),
-                    validator: (v) => v!.isEmpty ? 'Campo obrigatório' : null,
+                    decoration: const InputDecoration(labelText: 'Name'),
+                    validator: (v) => v!.isEmpty ? 'Required field' : null,
                   ),
                   TextFormField(
                     controller: hostController,
                     readOnly: isEditing,
                     style: TextStyle(color: isEditing ? MyColors.textSecondary_qcyber : MyColors.textPrimary_qcyber),
                     decoration: const InputDecoration(labelText: 'Host'),
-                    validator: (v) => v!.isEmpty ? 'Campo obrigatório' : null,
+                    validator: (v) => v!.isEmpty ? 'Required field' : null,
                   ),
                   TextFormField(
                     controller: localController,
                     style: const TextStyle(color: MyColors.textPrimary_qcyber),
-                    decoration: const InputDecoration(labelText: 'Localização'),
+                    decoration: const InputDecoration(labelText: 'Location'),
                   ),
                 ],
               ),
@@ -113,7 +113,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text("Cancelar", style: TextStyle(color: MyColors.textSecondary_qcyber)),
+              child: const Text("Cancel", style: TextStyle(color: MyColors.textSecondary_qcyber)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -135,13 +135,13 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                   } catch (e) {
                     if(mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Erro: $e"), backgroundColor: Colors.red),
+                        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
                       );
                     }
                   }
                 }
               },
-              child: const Text("Salvar"),
+              child: const Text("Save"),
             ),
           ],
         );
@@ -154,7 +154,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
     return Scaffold(
       backgroundColor: MyColors.background_qcyber,
       appBar: AppBar(
-        title: const Text('Gestão de Dispositivos'),
+        title: const Text('Device Management'),
         backgroundColor: MyColors.primary_qcyber,
         titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: MyColors.textOnPrimary_qcyber),
@@ -168,7 +168,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
               controller: _searchController,
               style: const TextStyle(color: MyColors.textPrimary_qcyber),
               decoration: InputDecoration(
-                hintText: 'Buscar por nome ou host...',
+                hintText: 'Search by name or host...',
                 hintStyle: const TextStyle(color: MyColors.textSecondary_qcyber),
                 prefixIcon: const Icon(Icons.search, color: MyColors.textSecondary_qcyber),
                 filled: true,
@@ -186,15 +186,15 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text("Erro: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
+                  return Center(child: Text("Error: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
                 }
                 if (_allDispositivos.isEmpty) {
-                  return const Center(child: Text("Nenhum dispositivo cadastrado.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
+                  return const Center(child: Text("No devices registered.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
                 }
 
                 final dispositivos = _filteredDispositivos;
                 if(dispositivos.isEmpty && _searchController.text.isNotEmpty) {
-                  return const Center(child: Text("Nenhum dispositivo encontrado para a busca.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
+                  return const Center(child: Text("No devices found for the search.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
                 }
 
                 return Stack(
@@ -222,11 +222,11 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(d.status.toString(), style: TextStyle(color: d.status == 'Ativo' ? MyColors.success_qcyber : MyColors.error_qcyber)),
+                                  Text(d.status.toString(), style: TextStyle(color: d.status == 'Active' ? MyColors.success_qcyber : MyColors.error_qcyber)),
                                   IconButton(
                                     icon: const Icon(Icons.edit, size: 20, color: MyColors.textSecondary_qcyber),
                                     onPressed: () => _showDeviceDialog(dispositivo: d),
-                                    tooltip: 'Editar Dispositivo',
+                                    tooltip: 'Edit Device',
                                   ),
                                 ],
                               ),
@@ -263,7 +263,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showDeviceDialog(),
-        tooltip: 'Adicionar Dispositivo',
+        tooltip: 'Add Device',
         backgroundColor: MyColors.primary_qcyber,
         child: const Icon(Icons.add, color: MyColors.textOnPrimary_qcyber),
       ),

@@ -45,7 +45,7 @@ class _UserListScreenState extends State<UserListScreen> {
       final users = await _userService.getUsers(searchTerm: searchTerm);
       setState(() => _users = users);
     } catch (e) {
-      setState(() => _error = 'Falha ao carregar usuários. Tente novamente.');
+      setState(() => _error = 'Failed to load users. Please try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -62,7 +62,7 @@ class _UserListScreenState extends State<UserListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestão de Usuários'),
+        title: const Text('User Management'),
         // Estilo qCyber
         backgroundColor: MyColors.primary_qcyber,
         titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
@@ -98,7 +98,7 @@ class _UserListScreenState extends State<UserListScreen> {
         controller: _searchController,
         onChanged: _onSearchChanged,
         decoration: InputDecoration(
-          hintText: 'Buscar por nome ou email...',
+          hintText: 'Search by name or email...',
           prefixIcon: const Icon(Icons.search, color: MyColors.textSecondary_qcyber),
           filled: true,
           fillColor: MyColors.card_qcyber,
@@ -124,7 +124,7 @@ class _UserListScreenState extends State<UserListScreen> {
       return Center(child: Text(_error!, style: const TextStyle(color: MyColors.error_qcyber)));
     }
     if (_users == null || _users!.isEmpty) {
-      return const Center(child: Text('Nenhum usuário encontrado.', style: TextStyle(color: MyColors.textPrimary_qcyber)));
+      return const Center(child: Text('No users found.', style: TextStyle(color: MyColors.textPrimary_qcyber)));
     }
     return Stack(
       children: [

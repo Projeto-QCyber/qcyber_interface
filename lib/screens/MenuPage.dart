@@ -145,10 +145,10 @@ class _MenuPageState extends State<MenuPage> {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       ConnectionErrorDialog.show(context, onTryAgain: _fetchDashboardData);
                     });
-                    return const Center(child: Text('Tentando reconectar...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
+                    return const Center(child: Text('Attempting to reconnect...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
                   }
 
-                  if (!snapshot.hasData) { return const Center(child: Text('Nenhum dado encontrado.', style: TextStyle(color: MyColors.textPrimary_qcyber))); }
+                  if (!snapshot.hasData) { return const Center(child: Text('No data found.', style: TextStyle(color: MyColors.textPrimary_qcyber))); }
 
                   final dashboardData = snapshot.data!;
                   return Stack(
@@ -220,17 +220,17 @@ class _MenuPageState extends State<MenuPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildFilterChip(DateRangePreset.last24h, 'Últimas 24h'),
+            _buildFilterChip(DateRangePreset.last24h, 'Last 24h'),
             const SizedBox(width: 8),
-            _buildFilterChip(DateRangePreset.last7d, 'Últimos 7 dias'),
+            _buildFilterChip(DateRangePreset.last7d, 'Last 7 days'),
             const SizedBox(width: 8),
-            _buildFilterChip(DateRangePreset.last30d, 'Últimos 30 dias'),
+            _buildFilterChip(DateRangePreset.last30d, 'Last 30 days'),
             const SizedBox(width: 8),
             ActionChip(
               label: Text(
                 _selectedPreset == DateRangePreset.custom && _customStartDate != null
                     ? '${DateFormat('dd/MM/yy').format(_customStartDate!)} - ${DateFormat('dd/MM/yy').format(_customEndDate!)}'
-                    : 'Personalizado',
+                    : 'Custom',
                 style: const TextStyle(color: MyColors.textPrimary_qcyber),
               ),
               backgroundColor: _selectedPreset == DateRangePreset.custom ? MyColors.primary_qcyber.withOpacity(0.7) : MyColors.card_qcyber,
@@ -276,14 +276,14 @@ class _MenuPageState extends State<MenuPage> {
                     children: [
                       Image.asset(Config.logoBranca, height: 40),
                       const SizedBox(height: 16),
-                      Text(userProvider.nome ?? 'Menu de Navegação', style: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20)),
+                      Text(userProvider.nome ?? 'Navigation Menu', style: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20)),
                     ],
                   ),
                 ),
                 _buildDrawerItem(icon: Icons.dashboard, text: "Dashboard", onTap: () { Navigator.pop(context); }),
                 _buildDrawerItem(
                     icon: Icons.dns,
-                    text: "Dispositivos",
+                    text: "Devices",
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const DeviceManagementScreen()));
@@ -291,7 +291,7 @@ class _MenuPageState extends State<MenuPage> {
                 ),
                 _buildDrawerItem(
                     icon: Icons.shield_outlined,
-                    text: "Histórico por Ameaça",
+                    text: "History by Threat",
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const GenericHistoryScreen(filterType: HistoryFilterType.threat)));
@@ -301,7 +301,7 @@ class _MenuPageState extends State<MenuPage> {
                   const Divider(color: MyColors.border_qcyber),
                   _buildDrawerItem(
                       icon: Icons.people,
-                      text: "Gestão de Usuários",
+                      text: "User Management",
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const UserListScreen()));
@@ -309,7 +309,7 @@ class _MenuPageState extends State<MenuPage> {
                   ),
                   _buildDrawerItem(
                       icon: Icons.settings,
-                      text: "Parâmetros do Sistema",
+                      text: "System Parameters",
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
@@ -317,7 +317,7 @@ class _MenuPageState extends State<MenuPage> {
                   ),
                 ],
                 const Divider(color: MyColors.border_qcyber),
-                _buildDrawerItem(icon: Icons.logout, text: "Sair",
+                _buildDrawerItem(icon: Icons.logout, text: "Logout",
                     onTap: () {
                       _authService.logout(context);
                       Navigator.of(context).pushAndRemoveUntil(

@@ -49,7 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = "Falha ao carregar configurações.";
+          _error = "Failed to load settings.";
           _isPageLoading = false;
         });
       }
@@ -87,12 +87,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _settingsData = newSettings;
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text('Configurações salvas com sucesso!'),
+          content: const Text('Settings saved successfully!'),
           backgroundColor: MyColors.success_qcyber,
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text('Falha ao salvar.'),
+          content: const Text('Failed to save settings.'),
           backgroundColor: MyColors.error_qcyber,
         ));
       }
@@ -113,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Parâmetros do Sistema'),
+        title: const Text('System Settings'),
         backgroundColor: MyColors.primary_qcyber,
         titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: MyColors.textOnPrimary_qcyber),
@@ -156,26 +156,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text(
-                        'Configurações de E-mail (SMTP)',
+                        'Email Settings (SMTP)',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber),
                       ),
                       const Divider(height: 24, color: MyColors.border_qcyber),
-                      TextFormField(controller: _serverController, decoration: _inputDecoration('Servidor SMTP'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      TextFormField(controller: _serverController, decoration: _inputDecoration('SMTP Server'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
                       const SizedBox(height: 16),
-                      TextFormField(controller: _portController, decoration: _inputDecoration('Porta SMTP'), keyboardType: TextInputType.number, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      TextFormField(controller: _portController, decoration: _inputDecoration('SMTP Port'), keyboardType: TextInputType.number, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
                       const SizedBox(height: 16),
-                      TextFormField(controller: _userController, decoration: _inputDecoration('Usuário (Email)'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      TextFormField(controller: _userController, decoration: _inputDecoration('User (Email)'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
                       const SizedBox(height: 16),
-                      TextFormField(controller: _passwordController, decoration: _inputDecoration('Senha de App'), obscureText: true, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      TextFormField(controller: _passwordController, decoration: _inputDecoration('App Password'), obscureText: true, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
                       const SizedBox(height: 16),
-                      TextFormField(controller: _senderNameController, decoration: _inputDecoration('Nome do Remetente'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
+                      TextFormField(controller: _senderNameController, decoration: _inputDecoration('Sender Name'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
                       const SizedBox(height: 32),
                       if (_isSaving)
                         const Center(child: CircularProgressIndicator())
                       else
                         ElevatedButton.icon(
                           icon: const Icon(Icons.save),
-                          label: const Text('Salvar Alterações'),
+                          label: const Text('Save Changes'),
                           onPressed: _saveSettings,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),

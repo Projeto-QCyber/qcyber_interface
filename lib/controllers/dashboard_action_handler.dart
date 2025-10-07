@@ -7,7 +7,7 @@ import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
 import 'package:zeropoint/widgets/dialogs/kpi_details_dialog.dart';
 import 'package:zeropoint/widgets/dialogs/kpi_detail_row.dart';
 
-/// Uma classe dedicada a lidar com as interações do usuário na dashboard.
+/// A dedicated class to handle user interactions on the dashboard.
 class DashboardActionHandler {
   final BuildContext context;
   final DashboardService dashboardService;
@@ -37,7 +37,7 @@ class DashboardActionHandler {
     DateTime? endDate,
   }) async {
     if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Últimas Detecções", icon: Icons.warning_amber, iconColor: MyColors.error_qcyber, children: []);
+      KpiDetailsDialog.show(context, title: "Latest Detections", icon: Icons.warning_amber, iconColor: MyColors.error_qcyber, children: []);
       return;
     }
 
@@ -47,7 +47,7 @@ class DashboardActionHandler {
       _hideLoadingIndicator();
       KpiDetailsDialog.show(
         context,
-        title: "Últimas Detecções",
+        title: "Latest Detections",
         icon: Icons.warning_amber,
         iconColor: MyColors.error_qcyber,
         children: details.map((d) => KpiDetailRow(
@@ -73,7 +73,7 @@ class DashboardActionHandler {
     DateTime? endDate,
   }) async {
     if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Ações Automáticas", icon: Icons.shield, iconColor: MyColors.textOnPrimary_qcyber, children: []);
+      KpiDetailsDialog.show(context, title: "Automated Actions", icon: Icons.shield, iconColor: MyColors.textOnPrimary_qcyber, children: []);
       return;
     }
 
@@ -84,7 +84,7 @@ class DashboardActionHandler {
 
       KpiDetailsDialog.show(
         context,
-        title: "Ações Automáticas Recentes",
+        title: "Recent Automated Actions",
         icon: Icons.shield,
         iconColor: MyColors.textOnPrimary_qcyber,
         children: details.map((acao) => KpiDetailRow(
@@ -106,7 +106,7 @@ class DashboardActionHandler {
     DateTime? endDate,
   }) async {
     if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Incidentes Recentes", icon: Icons.assignment_late, iconColor: MyColors.orange_qcyber, children: []);
+      KpiDetailsDialog.show(context, title: "Recent Incidents", icon: Icons.assignment_late, iconColor: MyColors.orange_qcyber, children: []);
       return;
     }
 
@@ -116,14 +116,14 @@ class DashboardActionHandler {
       _hideLoadingIndicator();
       KpiDetailsDialog.show(
         context,
-        title: "Incidentes Recentes",
+        title: "Recent Incidents",
         icon: Icons.assignment_late,
         iconColor: MyColors.orange_qcyber,
         children: details.map((i) {
-          // 1. Converte a string da API para o nosso Enum seguro
+          // 1. Converts the string from the API to our safe Enum
           final nivelRisco = NivelRisco.fromString(i.nivelRisco);
 
-          // 2. Usa o Enum para obter as cores e construir o widget
+          // 2. Uses the Enum to get the colors and build the widget
           return KpiDetailRow(
             icon: Icons.flag_outlined,
             iconColor: nivelRisco.textColor,
@@ -135,13 +135,13 @@ class DashboardActionHandler {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: nivelRisco.backgroundColor, // Cor do Enum
+                  color: nivelRisco.backgroundColor, // Color from the Enum
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Text(
                   nivelRisco.displayName,
                   style: TextStyle(
-                    color: nivelRisco.textColor, // Cor vinda do Enum
+                    color: nivelRisco.textColor, // Color from the Enum
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -161,7 +161,7 @@ class DashboardActionHandler {
 
   Future<void> showDispositivosDetails({required int kpiCount}) async {
     if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Dispositivos Ativos", icon: Icons.computer, iconColor: MyColors.textOnPrimary_qcyber, children: []);
+      KpiDetailsDialog.show(context, title: "Active Devices", icon: Icons.computer, iconColor: MyColors.textOnPrimary_qcyber, children: []);
       return;
     }
     _showLoadingIndicator();
@@ -170,7 +170,7 @@ class DashboardActionHandler {
       _hideLoadingIndicator();
       KpiDetailsDialog.show(
         context,
-        title: "Dispositivos Ativos",
+        title: "Active Devices",
         icon: Icons.computer,
         iconColor: MyColors.textOnPrimary_qcyber,
         children: details.map((d) => KpiDetailRow(

@@ -42,8 +42,8 @@ class _GenericHistoryScreenState extends State<GenericHistoryScreen> {
     _fetchFilterOptions();
   }
 
-  String get _screenTitle => "Histórico por Ameaça";
-  String get _filterLabel => "Selecione a Ameaça";
+  String get _screenTitle => "History by Threat";
+  String get _filterLabel => "Select a Threat";
 
   Future<void> _fetchFilterOptions() async {
     setState(() => _isLoadingFilter = true);
@@ -69,7 +69,7 @@ class _GenericHistoryScreenState extends State<GenericHistoryScreen> {
         });
       }
     } catch (e) {
-      if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erro ao carregar filtros: $e"), backgroundColor: Colors.red));
+      if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error loading filters: $e"), backgroundColor: Colors.red));
     } finally {
       if (mounted) setState(() => _isLoadingFilter = false);
     }
@@ -89,17 +89,17 @@ class _GenericHistoryScreenState extends State<GenericHistoryScreen> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text("Gerando relatório...")),
+        const SnackBar(content: Text("Generating report...")),
       );
       final pdfBytes = await _reportService.downloadThreatReport(_selectedFilterItem!.id);
       await FileSaver.instance.saveFile(
-        name: "relatorio_ameaca_${_selectedFilterItem!.id}.pdf",
+        name: "threat_report_${_selectedFilterItem!.id}.pdf",
         bytes: pdfBytes,
         mimeType: MimeType.pdf,
       );
     } catch(e) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Erro ao gerar PDF: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Error generating PDF: $e"), backgroundColor: Colors.red),
       );
     }
   }
@@ -127,7 +127,7 @@ class _GenericHistoryScreenState extends State<GenericHistoryScreen> {
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.picture_as_pdf, size: 18),
-                  label: const Text("Gerar PDF"),
+                  label: const Text("Generate PDF"),
                   onPressed: _selectedFilterItem == null ? null : _downloadThreatReport,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: MyColors.primary_qcyber,
@@ -158,7 +158,7 @@ class _GenericHistoryScreenState extends State<GenericHistoryScreen> {
     return DropdownButtonFormField<FilterItem>(
       value: _selectedFilterItem,
       hint: Text(
-        _isLoadingFilter ? "Carregando filtros..." : _filterLabel,
+        _isLoadingFilter ? "Loading filters..." : _filterLabel,
         style: const TextStyle(color: MyColors.textSecondary_qcyber),
       ),
       isExpanded: true,
@@ -185,7 +185,7 @@ class _GenericHistoryScreenState extends State<GenericHistoryScreen> {
 
   Widget _buildContent() {
     if (_selectedFilterItem == null) {
-      return const Center(child: Text("Selecione um item no filtro acima para começar.", style: TextStyle(color: MyColors.textSecondary_qcyber)));
+      return const Center(child: Text("Select an item from the filter above to begin.", style: TextStyle(color: MyColors.textSecondary_qcyber)));
     }
     if (_historyFuture == null) {
       return const Center(child: CircularProgressIndicator());
@@ -198,10 +198,10 @@ class _GenericHistoryScreenState extends State<GenericHistoryScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
-          return Center(child: Text("Erro: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
+          return Center(child: Text("Error: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text("Nenhum resultado encontrado.", style: const TextStyle(color: MyColors.textPrimary_qcyber)));
+          return const Center(child: Text("No results found.", style: const TextStyle(color: MyColors.textPrimary_qcyber)));
         }
 
         final historyItems = snapshot.data!;

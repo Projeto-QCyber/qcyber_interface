@@ -48,7 +48,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['message'] ?? 'Operação bem-sucedida!'),
+          content: Text(result['message'] ?? 'Operation successful!'),
           backgroundColor: MyColors.success_qcyber,
         ),
       );
@@ -64,7 +64,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['error'] ?? 'Ocorreu um erro.'),
+          content: Text(result['error'] ?? 'An error occurred.'),
           backgroundColor: MyColors.error_qcyber,
         ),
       );
@@ -83,10 +83,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
   Widget build(BuildContext context) {
     // ATUALIZADO: Layout e estilo visual incorporados
     final isEmailVerification = widget.verificationType == VerificationType.email;
-    final title = isEmailVerification ? 'Verifique seu Email' : 'Autenticação de Dois Fatores';
+    final title = isEmailVerification ? 'Verify Your Email' : 'Two-Factor Authentication';
     final description = isEmailVerification
-        ? 'Enviamos um código para ${widget.email}. Insira-o abaixo para ativar sua conta.'
-        : 'Para sua segurança, enviamos um código para seu e-mail. Insira-o para continuar.';
+        ? "We've sent a code to ${widget.email}. Please enter it below to activate your account."
+        : "For your security, we've sent a code to your email. Please enter it to continue.";
     final textStyle = const TextStyle(color: MyColors.textOnPrimary_qcyber);
 
     return Scaffold(
@@ -135,20 +135,20 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         keyboardType: TextInputType.text,
                         textAlign: TextAlign.center,
                         style: textStyle.copyWith(fontSize: 20, letterSpacing: 4),
-                        decoration: _inputDecoration('Código de Verificação'),
-                        validator: (value) => (value == null || value.isEmpty) ? 'Por favor, insira o código.' : null,
+                        decoration: _inputDecoration('Verification Code'),
+                        validator: (value) => (value == null || value.isEmpty) ? 'Please enter the code.' : null,
                       ),
                       const SizedBox(height: 24),
                       if (_isLoading) const Center(child: CircularProgressIndicator(color: Colors.white)) else ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: MyColors.background_qcyber, foregroundColor: MyColors.primary_qcyber, padding: const EdgeInsets.symmetric(vertical: 16)),
                         onPressed: _submitCode,
-                        child: const Text('Verificar', style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
+                        child: const Text('Verify', style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       if (isEmailVerification) ...[
                         const SizedBox(height: 8),
                         TextButton(
                           onPressed: _isLoading ? null : () { /* TODO: Lógica para reenviar código */ },
-                          child: Text('Reenviar código', style: textStyle.copyWith(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8))),
+                          child: Text('Resend code', style: textStyle.copyWith(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8))),
                         ),
                       ],
                     ],

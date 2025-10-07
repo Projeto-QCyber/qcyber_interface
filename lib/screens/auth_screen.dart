@@ -137,29 +137,29 @@ class _AuthScreenState extends State<AuthScreen> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(_isLoginMode ? "Bem-vindo" : "Criar Nova Conta", textAlign: TextAlign.center, style: titleStyle),
+                        child: Text(_isLoginMode ? "Welcome" : "Create New Account", textAlign: TextAlign.center, style: titleStyle),
                       ),
                       const SizedBox(height: 16),
                       if (!_isLoginMode) ...[
-                        TextFormField(controller: _nameController, style: textStyle, decoration: _inputDecoration("Nome Completo"), validator: (v) => v!.isEmpty ? 'Insira um nome' : null),
+                        TextFormField(controller: _nameController, style: textStyle, decoration: _inputDecoration("Full Name"), validator: (v) => v!.isEmpty ? 'Please enter a name' : null),
                         const SizedBox(height: 12),
                       ],
-                      TextFormField(controller: _emailController, style: textStyle, decoration: _inputDecoration("E-mail"), keyboardType: TextInputType.emailAddress, validator: (v) => v!.isEmpty || !v.contains('@') ? 'Insira um e-mail válido' : null),
+                      TextFormField(controller: _emailController, style: textStyle, decoration: _inputDecoration("Email"), keyboardType: TextInputType.emailAddress, validator: (v) => v!.isEmpty || !v.contains('@') ? 'Please enter a valid email' : null),
                       const SizedBox(height: 12),
-                      TextFormField(controller: _passwordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Senha"), validator: (v) => v!.length < 6 ? 'A senha precisa ter no mínimo 6 caracteres' : null),
+                      TextFormField(controller: _passwordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Password"), validator: (v) => v!.length < 6 ? 'Password must be at least 6 characters long' : null),
                       if (!_isLoginMode) ...[
                         const SizedBox(height: 12),
-                        TextFormField(controller: _confirmPasswordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Confirme a senha"), validator: (v) => v != _passwordController.text ? 'As senhas não coincidem' : null),
+                        TextFormField(controller: _confirmPasswordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Confirm Password"), validator: (v) => v != _passwordController.text ? 'Passwords do not match' : null),
                       ],
                       const SizedBox(height: 24),
                       if (_isLoading) const Center(child: CircularProgressIndicator(color: Colors.white)) else ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: MyColors.background_qcyber, foregroundColor: MyColors.primary_qcyber, padding: const EdgeInsets.symmetric(vertical: 16)),
                         onPressed: _submit,
-                        child: Text(_isLoginMode ? "Entrar" : "Criar Conta", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
+                        child: Text(_isLoginMode ? "Sign In" : "Create Account", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       TextButton(
                         onPressed: () { if (_isLoading) return; setState(() => _isLoginMode = !_isLoginMode); },
-                        child: Text(_isLoginMode ? "Ainda não tem conta? Crie uma" : "Já tem uma conta? Entre", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
+                        child: Text(_isLoginMode ? "Don't have an account? Sign up" : "Already have an account? Sign in", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -169,7 +169,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           );
                         },
                         child: Text(
-                          'Esqueceu sua senha?',
+                          'Forgot your password?',
                           style: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.7)),
                         ),
                       ),
@@ -180,7 +180,7 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
 
             const SizedBox(height: 8),
-            Text('Versão 0.1.0', textAlign: TextAlign.center, style: TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 12)),
+            Text('Version 0.1.0', textAlign: TextAlign.center, style: TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 12)),
             const SizedBox(height: 20),
           ],
         ),
