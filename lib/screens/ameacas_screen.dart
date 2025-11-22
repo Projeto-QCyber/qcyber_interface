@@ -1,4 +1,7 @@
+// lib/screens/ameacas_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:intl/intl.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
@@ -13,6 +16,7 @@ class AmeacasScreen extends StatefulWidget {
 }
 
 class _AmeacasScreenState extends State<AmeacasScreen> {
+  // Mantemos a instância local, assumindo que o AmeacaService já usa o AuthInterceptor internamente
   final AmeacaService _service = AmeacaService();
   late Future<List<Ameaca>> _ameacasFuture;
 
@@ -71,7 +75,8 @@ class _AmeacasScreenState extends State<AmeacasScreen> {
           actions: [
             TextButton(
               child: const Text("Close", style: TextStyle(color: MyColors.primary_qcyber)),
-              onPressed: () => Navigator.of(context).pop(),
+              // ATUALIZADO: Usando GoRouter para fechar o modal
+              onPressed: () => context.pop(),
             ),
           ],
         );
@@ -112,6 +117,7 @@ class _AmeacasScreenState extends State<AmeacasScreen> {
       appBar: AppBar(
         title: const Text('Detected Threats'),
         backgroundColor: MyColors.primary_qcyber,
+        // Ícone de voltar automático do AppBar funcionará com context.pop() implicitamente
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),

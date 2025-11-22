@@ -1,10 +1,13 @@
+// lib/screens/user_list_screen.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/objetos/user_summary.dart';
-import 'package:zeropoint/screens/user/user_details_screen.dart';
 import 'package:zeropoint/services/user_service.dart';
+// Removemos a importação direta da UserDetailsScreen, pois o Router cuida disso
 
 class UserListScreen extends StatefulWidget {
   const UserListScreen({super.key});
@@ -63,7 +66,6 @@ class _UserListScreenState extends State<UserListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Management'),
-        // Estilo qCyber
         backgroundColor: MyColors.primary_qcyber,
         titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: MyColors.textOnPrimary_qcyber),
@@ -79,7 +81,6 @@ class _UserListScreenState extends State<UserListScreen> {
         children: [
           _buildSearchBar(),
           Expanded(child: _buildContent()),
-          // Rodapé padrão qCyber
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
@@ -141,13 +142,22 @@ class _UserListScreenState extends State<UserListScreen> {
               ),
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
+
+                // ATUALIZADO: Usando GoRouter e aguardando retorno
                 onTap: () async {
-                  final bool? foiAtualizado = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UserDetailsScreen(user: user)),
+                  // Navegamos para a rota de detalhes, passando o objeto 'user' no extra
+                  // para não precisar buscar tudo de novo na próxima tela.
+                  final bool? foiAtualizado = await context.push<bool>(
+                      '/users/${user.id}',
+                      extra: user
                   );
-                  if (foiAtualizado == true) _fetchUsers();
+
+                  // Se a tela de detalhes retornar true (ex: usuário editado), atualizamos a lista
+                  if (foiAtualizado == true) {
+                    _fetchUsers();
+                  }
                 },
+
                 child: ListTile(
                   leading: Icon(Icons.person, color: user.ativo ? MyColors.primary_qcyber : MyColors.textSecondary_qcyber),
                   title: Text(user.nome, style: const TextStyle(color: MyColors.textPrimary_qcyber)),
@@ -165,7 +175,6 @@ class _UserListScreenState extends State<UserListScreen> {
             );
           },
         ),
-        // Efeito de Fade
         Positioned(
           bottom: 0, left: 0, right: 0, height: 50.0,
           child: IgnorePointer(

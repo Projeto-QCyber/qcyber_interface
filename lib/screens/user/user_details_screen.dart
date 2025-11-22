@@ -1,4 +1,7 @@
+// lib/screens/user/user_details_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/objetos/user_summary.dart';
@@ -39,10 +42,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         content: Text(success ? 'Permissions updated successfully!' : 'Failed to update.'),
         backgroundColor: success ? MyColors.success_qcyber : MyColors.error_qcyber,
       ));
-      if (success) Navigator.pop(context, true);
+
+      // ATUALIZADO: Usando GoRouter para voltar e retornar 'true'
+      if (success) {
+        context.pop(true);
+      }
     }
   }
-
 
   Future<void> _resetPassword() async {
     // Diálogo de confirmação para segurança
@@ -52,8 +58,9 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         title: const Text('Confirm Action'),
         content: Text("Are you sure you want to reset the password for ${widget.user.nome}? A temporary password will be sent to the user's email."),
         actions: [
-          TextButton(child: const Text('Cancel'), onPressed: () => Navigator.of(ctx).pop(false)),
-          TextButton(child: const Text('Confirm'), onPressed: () => Navigator.of(ctx).pop(true)),
+          // ATUALIZADO: Usando a extensão do GoRouter no contexto do diálogo (ctx)
+          TextButton(child: const Text('Cancel'), onPressed: () => ctx.pop(false)),
+          TextButton(child: const Text('Confirm'), onPressed: () => ctx.pop(true)),
         ],
       ),
     );
@@ -61,6 +68,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     if (confirm != true) return;
 
     setState(() => _isLoading = true);
+    // Nota: O método resetPassword precisa estar implementado no UserService
     final success = await _userService.resetPassword(widget.user.id);
     setState(() => _isLoading = false);
 
@@ -92,7 +100,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 24.0), // Padding inferior ajustado
+              padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -124,7 +132,18 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                     ],
                   ),
                   const SizedBox(height: 32),
-                  // Botão de salvar dentro da área de rolagem para melhor visibilidade
+                  // Botão de Reset de Senha (Adicionado para usar a função _resetPassword)
+                  OutlinedButton.icon(
+                    onPressed: _isLoading ? null : _resetPassword,
+                    icon: const Icon(Icons.lock_reset, color: MyColors.warning_qcyber),
+                    label: const Text("Reset User Password", style: TextStyle(color: MyColors.warning_qcyber)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(color: MyColors.warning_qcyber),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   if (_isLoading)
                     const Center(child: CircularProgressIndicator())
                   else
@@ -140,7 +159,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               ),
             ),
           ),
-          // Rodapé padrão qCyber
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
@@ -152,7 +170,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
-  // --- WIDGETS AUXILIARES (sem alteração) ---
+  // --- WIDGETS AUXILIARES ---
 
   Widget _buildSectionCard({required String title, required List<Widget> children}) {
     return Card(

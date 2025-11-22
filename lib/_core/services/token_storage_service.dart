@@ -1,27 +1,48 @@
-// lib/_core/services/token_storage_service.dart
-
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TokenStorageService {
-  static const String _tokenKey = 'jwt_token';
+  // Configuração para evitar problemas conhecidos no Android/iOS
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
-  // Salva o token no SharedPreferences
+  static const _accessTokenKey = 'access_token';
+  static const _refreshTokenKey = 'refresh_token'; // Preparando para o futuro, mesmo se não usar agora
+
+  /// Salva o token (e refresh token se houver)
+  Future<void> saveTokens({required String accessToken, String? refreshToken}) async {
+    await _storage.write(key: _accessTokenKey, value: accessToken);
+    if (refreshToken != null) {
+      await _storage.write(key: _refreshTokenKey, value: refreshToken);
+    }
+  }
+
+  /// Recupera o token de acesso
+  Future<String?> getAccessToken() async {
+    return await _storage.read(key: _accessTokenKey);
+  }
+
+  /// Recupera o refresh token
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: _refreshTokenKey);
+  }
+
+  /// Limpa tudo (Logout)
+  Future<void> deleteTokens() async {
+    await _storage.deleteAll();
+  }
+
+  /// Verifica se existe sessão (útil para o Splash/Router)
+  Future<bool> hasToken() async {
+    final token = await getAccessToken();
+    return token != null;
+  }
+
+  // Mantendo compatibilidade com seu código antigo que chamava "saveToken"
   Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
-    print("Token salvo com sucesso!");
+    await saveTokens(accessToken: token);
   }
 
-  // Recupera o token do SharedPreferences
-  Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
-  }
-
-  // Remove o token (para funcionalidade de logout)
-  Future<void> deleteToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
-    print("Token removido.");
-  }
+  // Mantendo compatibilidade com seu código antigo que chamava "getToken"
+  Future<String?> getToken() => getAccessToken();
 }

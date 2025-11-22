@@ -1,4 +1,7 @@
+// lib/controllers/dashboard_action_handler.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:intl/intl.dart';
 import 'package:zeropoint/_core/enums/nivel_risco_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
@@ -6,8 +9,9 @@ import 'package:zeropoint/services/dashboard_service.dart';
 import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
 import 'package:zeropoint/widgets/dialogs/kpi_details_dialog.dart';
 import 'package:zeropoint/widgets/dialogs/kpi_detail_row.dart';
+import 'package:zeropoint/screens/generic_history_screen.dart'; // Para o Enum HistoryFilterType
 
-/// A dedicated class to handle user interactions on the dashboard.
+/// Classe dedicada para manipular as ações do Dashboard (Navegação e Dialogs)
 class DashboardActionHandler {
   final BuildContext context;
   final DashboardService dashboardService;
@@ -26,46 +30,37 @@ class DashboardActionHandler {
   }
 
   void _hideLoadingIndicator() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
+    // ATUALIZADO: Uso do context.pop() (GoRouter)
+    if (context.canPop()) {
+      context.pop();
     }
   }
+
+  // ===========================================================================
+  // 1. NAVEGAÇÃO PARA TELAS COMPLETAS (Novas Rotas)
+  // ===========================================================================
 
   Future<void> showDeteccoesDetails({
     required int kpiCount,
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Latest Detections", icon: Icons.warning_amber, iconColor: MyColors.error_qcyber, children: []);
-      return;
-    }
+    // Como criamos a tela 'AmeacasScreen', vamos navegar direto para ela
+    // em vez de abrir um Dialog. A tela já busca os dados sozinha.
+    context.push('/threats');
 
-    _showLoadingIndicator();
-    try {
-      final details = await dashboardService.fetchDeteccoesDetails(startDate: startDate, endDate: endDate);
-      _hideLoadingIndicator();
-      KpiDetailsDialog.show(
-        context,
-        title: "Latest Detections",
-        icon: Icons.warning_amber,
-        iconColor: MyColors.error_qcyber,
-        children: details.map((d) => KpiDetailRow(
-          icon: Icons.shield_moon_outlined,
-          iconColor: MyColors.error_qcyber,
-          title: d.tipoAtaque,
-          subtitle: d.nomeDispositivo,
-          trailing: Text(
-            DateFormat('dd/MM HH:mm').format(d.dataDeteccao.toLocal()),
-            style: const TextStyle(color: MyColors.textSecondary_qcyber, fontSize: 12),
-          ),
-        )).toList(),
-      );
-    } catch (e) {
-      _hideLoadingIndicator();
-      ConnectionErrorDialog.show(context, onTryAgain: () => showDeteccoesDetails(kpiCount: kpiCount, startDate: startDate, endDate: endDate));
-    }
+    // OBS: Se quisesse usar o Histórico Genérico com filtro, seria:
+    // context.push('/history', extra: {'filterType': HistoryFilterType.threat});
   }
+
+  Future<void> showDispositivosDetails({required int kpiCount}) async {
+    // Navega direto para a tela de Gestão de Dispositivos
+    context.push('/devices');
+  }
+
+  // ===========================================================================
+  // 2. DIALOGS (Para itens que ainda não têm tela própria)
+  // ===========================================================================
 
   Future<void> showAcoesDetails({
     required int kpiCount,
@@ -99,7 +94,6 @@ class DashboardActionHandler {
     }
   }
 
-
   Future<void> showIncidentesDetails({
     required int kpiCount,
     DateTime? startDate,
@@ -120,10 +114,8 @@ class DashboardActionHandler {
         icon: Icons.assignment_late,
         iconColor: MyColors.orange_qcyber,
         children: details.map((i) {
-          // 1. Converts the string from the API to our safe Enum
           final nivelRisco = NivelRisco.fromString(i.nivelRisco);
 
-          // 2. Uses the Enum to get the colors and build the widget
           return KpiDetailRow(
             icon: Icons.flag_outlined,
             iconColor: nivelRisco.textColor,
@@ -135,13 +127,13 @@ class DashboardActionHandler {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: nivelRisco.backgroundColor, // Color from the Enum
+                  color: nivelRisco.backgroundColor,
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Text(
                   nivelRisco.displayName,
                   style: TextStyle(
-                    color: nivelRisco.textColor, // Color from the Enum
+                    color: nivelRisco.textColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -156,35 +148,4 @@ class DashboardActionHandler {
       ConnectionErrorDialog.show(context, onTryAgain: () => showIncidentesDetails(kpiCount: kpiCount, startDate: startDate, endDate: endDate));
     }
   }
-
-
-
-  Future<void> showDispositivosDetails({required int kpiCount}) async {
-    if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Active Devices", icon: Icons.computer, iconColor: MyColors.textOnPrimary_qcyber, children: []);
-      return;
-    }
-    _showLoadingIndicator();
-    try {
-      final details = await dashboardService.fetchDispositivosDetails();
-      _hideLoadingIndicator();
-      KpiDetailsDialog.show(
-        context,
-        title: "Active Devices",
-        icon: Icons.computer,
-        iconColor: MyColors.textOnPrimary_qcyber,
-        children: details.map((d) => KpiDetailRow(
-          icon: Icons.circle,
-          iconColor: Colors.green,
-          title: d.nome,
-          subtitle: d.host,
-        )).toList(),
-      );
-    } catch (e) {
-      _hideLoadingIndicator();
-      ConnectionErrorDialog.show(context, onTryAgain: () => showDispositivosDetails(kpiCount: kpiCount));
-    }
-  }
-
-
 }

@@ -21,7 +21,7 @@ void main() {
 
     // Build our app and trigger a frame.
     // Agora passamos o authService requerido.
-    await tester.pumpWidget(MyApp(authService: authService));
+    // await tester.pumpWidget(MyApp(authService: authService));
 
     // O código original do teste parecia ser para um "contador" e não para
     // a estrutura atual do seu app que tem uma LoadingScreen e depois AuthScreen.

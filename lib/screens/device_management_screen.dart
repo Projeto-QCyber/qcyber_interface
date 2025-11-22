@@ -1,11 +1,13 @@
 // lib/screens/device_management_screen.dart
+
 import 'package:flutter/material.dart';
-import 'package:zeropoint/_core/config.dart'; // Ajuste o import
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
+import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/objetos/dispositivo.dart';
-import 'package:zeropoint/screens/device_history_detail_screen.dart';
-import 'package:zeropoint/screens/generic_history_screen.dart';
-import 'package:zeropoint/services/dispositivo_service.dart'; // Ajuste o import
+// Removemos: import 'package:zeropoint/screens/device_history_detail_screen.dart'; (O Router resolve isso)
+import 'package:zeropoint/screens/generic_history_screen.dart'; // Mantido caso precise de referência futura
+import 'package:zeropoint/services/dispositivo_service.dart';
 
 class DeviceManagementScreen extends StatefulWidget {
   const DeviceManagementScreen({super.key});
@@ -48,7 +50,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
       }).catchError((error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error fetching devices: $error"), backgroundColor: Colors.red),
+            SnackBar(content: Text("Error fetching devices: $error"), backgroundColor: MyColors.error_qcyber),
           );
         }
       });
@@ -112,7 +114,8 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
+              // ATUALIZADO: context.pop() via GoRouter (usando dialogContext para garantir o escopo)
+              onPressed: () => dialogContext.pop(),
               child: const Text("Cancel", style: TextStyle(color: MyColors.textSecondary_qcyber)),
             ),
             ElevatedButton(
@@ -130,12 +133,12 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                       await _apiService.createDispositivo(
                           nomeController.text, hostController.text, localController.text);
                     }
-                    if (mounted) Navigator.of(dialogContext).pop();
-                    _refreshDispositivos();
+                    if (mounted) dialogContext.pop(); // Fecha o dialog
+                    _refreshDispositivos(); // Atualiza a lista
                   } catch (e) {
                     if(mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+                        SnackBar(content: Text("Error: $e"), backgroundColor: MyColors.error_qcyber),
                       );
                     }
                   }
@@ -209,11 +212,9 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
+                            // ATUALIZADO: Navegação via rota nomeada com parâmetro e objeto extra
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => DeviceHistoryDetailScreen(dispositivo: d),
-                              ));
-
+                              context.push('/devices/${d.id}', extra: d);
                             },
                             child: ListTile(
                               leading: const Icon(Icons.computer, color: MyColors.primary_qcyber),

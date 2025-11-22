@@ -1,5 +1,7 @@
 // lib/screens/settings_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/services/settings_service.dart';
@@ -15,13 +17,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final SettingsService _settingsService = SettingsService();
   final _formKey = GlobalKey<FormState>();
 
-  // MUDANÇA 1: Variáveis de estado para controlar o carregamento e os dados
-  bool _isPageLoading = true; // Para o loading inicial da página
-  bool _isSaving = false; // Para o loading do botão de salvar
+  bool _isPageLoading = true;
+  bool _isSaving = false;
   Map<String, String>? _settingsData;
   String? _error;
 
-  // Controllers para cada campo do formulário
   final _serverController = TextEditingController();
   final _portController = TextEditingController();
   final _userController = TextEditingController();
@@ -31,11 +31,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    // MUDANÇA 2: Chamamos uma função para carregar os dados iniciais
     _loadInitialData();
   }
 
-  // MUDANÇA 3: Nova função para carregar e popular os dados
+  @override
+  void dispose() {
+    _serverController.dispose();
+    _portController.dispose();
+    _userController.dispose();
+    _passwordController.dispose();
+    _senderNameController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadInitialData() async {
     try {
       final settings = await _settingsService.getSettings();
@@ -64,7 +72,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _senderNameController.text = settings['SMTP_SENDER_NAME'] ?? '';
   }
 
-  // MUDANÇA 4: Método de salvar atualizado para uma experiência suave
   Future<void> _saveSettings() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
@@ -77,26 +84,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'SMTP_SENDER_NAME': _senderNameController.text,
     };
 
-    final success = await _settingsService.updateSettings(newSettings);
+    try {
+      final success = await _settingsService.updateSettings(newSettings);
 
-    if (mounted) {
-      if (success) {
-        // Apenas atualizamos nossos dados locais com o que acabamos de salvar.
-        // Não há necessidade de buscar na API de novo, economizando uma chamada de rede.
-        setState(() {
-          _settingsData = newSettings;
-        });
+      if (mounted) {
+        if (success) {
+          setState(() {
+            _settingsData = newSettings;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('Settings saved successfully!'),
+            backgroundColor: MyColors.success_qcyber,
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('Failed to save settings.'),
+            backgroundColor: MyColors.error_qcyber,
+          ));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text('Settings saved successfully!'),
-          backgroundColor: MyColors.success_qcyber,
-        ));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text('Failed to save settings.'),
+          content: Text('Error: $e'),
           backgroundColor: MyColors.error_qcyber,
         ));
       }
-      setState(() => _isSaving = false);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -125,7 +140,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       backgroundColor: MyColors.background_qcyber,
-      // MUDANÇA 5: O body não usa mais FutureBuilder
       body: _buildBody(),
     );
   }
@@ -170,16 +184,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 16),
                       TextFormField(controller: _senderNameController, decoration: _inputDecoration('Sender Name'), style: const TextStyle(color: MyColors.textPrimary_qcyber)),
                       const SizedBox(height: 32),
+
                       if (_isSaving)
                         const Center(child: CircularProgressIndicator())
                       else
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.save),
-                          label: const Text('Save Changes'),
-                          onPressed: _saveSettings,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
+                        Row(
+                          children: [
+                            // Botão Cancelar (NOVO)
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => context.pop(), // GoRouter pop
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  side: const BorderSide(color: MyColors.textSecondary_qcyber),
+                                ),
+                                child: const Text("Cancel", style: TextStyle(color: MyColors.textSecondary_qcyber)),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // Botão Salvar
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.save),
+                                label: const Text('Save Changes'),
+                                onPressed: _saveSettings,
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: MyColors.primary_qcyber,
+                                  foregroundColor: MyColors.textOnPrimary_qcyber,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                     ],
                   ),

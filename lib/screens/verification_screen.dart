@@ -1,12 +1,14 @@
 // lib/screens/verification_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
+import 'package:provider/provider.dart';   // Útil se precisarmos atualizar o estado imediatamente
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/enums/verification_type_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
-import 'package:zeropoint/screens/MenuPage.dart';
+// Removemos: import 'package:zeropoint/screens/MenuPage.dart'; (O Router resolve isso)
 import 'package:zeropoint/services/auth_service.dart';
-
+import 'package:zeropoint/objetos/UsuariosLogados.dart';
 
 class VerificationScreen extends StatefulWidget {
   final VerificationType verificationType;
@@ -54,12 +56,16 @@ class _VerificationScreenState extends State<VerificationScreen> {
       );
 
       if (widget.verificationType == VerificationType.twoFactor) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-              (route) => false,
-        );
+        // CASO 1: Sucesso no 2FA (Login completo)
+        // Atualizamos o Provider para refletir que o login está completo, se necessário
+        // (O AppRouter fará a verificação do token e fetch do user automaticamente ao ir para a raiz)
+
+        // Limpa a pilha e vai para a Home
+        context.go('/');
       } else {
-        Navigator.of(context).pop(true);
+        // CASO 2: Sucesso na verificação de Email (Fluxo de Registo)
+        // Retorna 'true' para quem chamou (geralmente AuthScreen)
+        context.pop(true);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -71,7 +77,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
     }
   }
 
-  // ATUALIZADO: Helper de estilo para o input
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
     labelStyle: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8)),
@@ -81,7 +86,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ATUALIZADO: Layout e estilo visual incorporados
     final isEmailVerification = widget.verificationType == VerificationType.email;
     final title = isEmailVerification ? 'Verify Your Email' : 'Two-Factor Authentication';
     final description = isEmailVerification
@@ -109,9 +113,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 25.0), // Espaçamento entre a logo e o formulário
+                padding: const EdgeInsets.only(bottom: 25.0),
                 child: Image.asset(
-                  Config.logoAzul, // Assumindo que esta é a logo colorida para fundo claro
+                  Config.logoAzul,
                   width: 300,
                   height: 80,
                 ),
@@ -147,7 +151,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       if (isEmailVerification) ...[
                         const SizedBox(height: 8),
                         TextButton(
-                          onPressed: _isLoading ? null : () { /* TODO: Lógica para reenviar código */ },
+                          onPressed: _isLoading ? null : () {
+                            // Lógica futura de reenvio
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Resend functionality coming soon.")));
+                          },
                           child: Text('Resend code', style: textStyle.copyWith(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8))),
                         ),
                       ],

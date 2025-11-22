@@ -1,6 +1,8 @@
-// lib/screens/forgot_password_screen.dart
+// lib/screens/user/forgot_password_screen.dart
+// (Certifique-se de que o arquivo está na pasta correta, no AppRouter definimos como zeropoint/screens/user/forgot_password_screen.dart, mas se estiver na raiz de screens, ajuste o import no Router)
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/services/auth_service.dart';
@@ -15,7 +17,10 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  // Mantemos a instância, pois o AuthService gerencia sua própria injeção de dependências internas
   final _authService = AuthService();
+
   bool _isLoading = false;
 
   Future<void> _sendResetLink() async {
@@ -26,17 +31,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     if (mounted) {
       setState(() => _isLoading = false);
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(result['message'] ?? 'Sending attempt has been made.'),
         backgroundColor: result['success'] ? MyColors.success_qcyber : MyColors.error_qcyber,
       ));
+
       if (result['success']) {
-        Navigator.of(context).pop();
+        // ATUALIZADO: Usando GoRouter para voltar à tela de login
+        context.pop();
       }
     }
   }
 
-  // Helper de estilo para os inputs, seguindo o padrão da tela de login
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
     labelStyle: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8)),
@@ -54,7 +61,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     return Scaffold(
       backgroundColor: MyColors.background_qcyber,
-      // ATUALIZADO: AppBar com a identidade visual completa
       appBar: AppBar(
         title: const Text('Reset Password'),
         backgroundColor: MyColors.primary_qcyber,
@@ -118,7 +124,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
             ),
           ),
-          // ATUALIZADO: Rodapé com a logo
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(

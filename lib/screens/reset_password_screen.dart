@@ -1,12 +1,13 @@
 // lib/screens/reset_password_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  // O token será recebido da URL
+  // O token será recebido da URL via AppRouter
   final String token;
 
   const ResetPasswordScreen({super.key, required this.token});
@@ -20,6 +21,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
+
   bool _isLoading = false;
   bool _isPasswordObscured = true;
   bool _isConfirmObscured = true;
@@ -43,13 +45,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     ));
 
     if (result['success']) {
-      // Se deu certo, podemos enviar o usuário para a tela de login.
-      // O popUntil remove todas as telas da pilha até encontrar a de login.
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      // ATUALIZADO: Usando GoRouter para limpar a pilha e ir para o Login
+      context.go('/login');
     }
   }
 
-  // Helper de estilo para os inputs, seguindo o padrão
   InputDecoration _inputDecoration(String label, {Widget? suffixIcon}) => InputDecoration(
     labelText: label,
     suffixIcon: suffixIcon,

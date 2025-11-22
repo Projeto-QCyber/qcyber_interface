@@ -95,7 +95,7 @@ class _CustomDateRangePickerState extends State<CustomDateRangePicker> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Selecionar Período',
+              'Select Period',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: MyColors.textOnPrimary_qcyber,
@@ -104,9 +104,9 @@ class _CustomDateRangePickerState extends State<CustomDateRangePicker> {
               ),
             ),
             const SizedBox(height: 24),
-            _buildDateField('Data de Início', _startDateController, () => _selectDate(context, true)),
+            _buildDateField('Start Date', _startDateController, () => _selectDate(context, true)),
             const SizedBox(height: 16),
-            _buildDateField('Data de Fim', _endDateController, () => _selectDate(context, false)),
+            _buildDateField('End Date', _endDateController, () => _selectDate(context, false)),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

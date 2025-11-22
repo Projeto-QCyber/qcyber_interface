@@ -1,12 +1,10 @@
 // lib/screens/auth_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // Importante para context.go e context.push
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/enums/verification_type_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
-import 'package:zeropoint/screens/MenuPage.dart';
-import 'package:zeropoint/screens/user/forgot_password_screen.dart';
-import 'package:zeropoint/screens/verification_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -38,37 +36,49 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
+    // ======================================================
+    // MODO LOGIN
+    // ======================================================
     if (_isLoginMode) {
-      final result = await _authService.login(_emailController.text.trim(), _passwordController.text.trim());
+      final result = await _authService.login(
+          _emailController.text.trim(),
+          _passwordController.text.trim()
+      );
 
       if (!mounted) return;
 
       if (result['success']) {
+        // CASO 1: Precisa de 2FA
         if (result['requires_2fa']) {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => VerificationScreen(
-              verificationType: VerificationType.twoFactor,
-              tempToken: result['temp_token'],
-              email: _emailController.text.trim(),
-            ),
-          ));
-        } else {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MenuPage()));
+          context.push('/verify', extra: {
+            'verificationType': VerificationType.twoFactor,
+            'tempToken': result['temp_token'],
+            'email': _emailController.text.trim(),
+          });
+        }
+        // CASO 2: Login direto (Sucesso)
+        else {
+          // Use 'go' para limpar o histórico de login e ir para a raiz
+          context.go('/');
         }
       } else {
+        // CASO 3: Email não verificado (Erro 403)
         if (result['requires_email_verification'] == true) {
           _showError(result['error']);
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => VerificationScreen(
-              verificationType: VerificationType.email,
-              email: _emailController.text.trim(),
-            ),
-          ));
+
+          context.push('/verify', extra: {
+            'verificationType': VerificationType.email,
+            'email': _emailController.text.trim(),
+          });
         } else {
           _showError(result['error']);
         }
       }
-    } else { // Modo Registro
+    }
+    // ======================================================
+    // MODO REGISTRO
+    // ======================================================
+    else {
       final result = await _authService.register(
         nome: _nameController.text.trim(),
         email: _emailController.text.trim(),
@@ -78,18 +88,25 @@ class _AuthScreenState extends State<AuthScreen> {
       if (!mounted) return;
 
       if (result['success']) {
-        final verificationResult = await Navigator.of(context).push<bool>(MaterialPageRoute(
-          builder: (_) => VerificationScreen(
-            verificationType: VerificationType.email,
-            email: result['email'],
-          ),
-        ));
-        if (verificationResult == true) {
+        // Navega para verificação e aguarda o retorno (se o usuário voltar)
+        await context.push('/verify', extra: {
+          'verificationType': VerificationType.email,
+          'email': result['email'],
+        });
+
+        // Se o usuário voltar da tela de verificação, voltamos para a tela de Login
+        if (mounted) {
           setState(() {
             _isLoginMode = true;
             _nameController.clear();
             _confirmPasswordController.clear();
+            _passwordController.clear();
           });
+
+          // --- MENSAGEM TRADUZIDA AQUI ---
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Registration successful! Please log in after verifying your email.")),
+          );
         }
       } else {
         _showError(result['error']);
@@ -99,7 +116,6 @@ class _AuthScreenState extends State<AuthScreen> {
     if(mounted) setState(() => _isLoading = false);
   }
 
-  // ATUALIZADO: Helper de estilo para os inputs
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
     labelStyle: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8)),
@@ -112,7 +128,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ATUALIZADO: Layout e estilo visual reincorporados
     final textStyle = const TextStyle(color: MyColors.textOnPrimary_qcyber, height: 1.5);
     final titleStyle = textStyle.copyWith(fontSize: 24, fontWeight: FontWeight.bold);
 
@@ -164,9 +179,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextButton(
                         onPressed: () {
                           if (_isLoading) return;
-                          Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const ForgotPasswordScreen())
-                          );
+                          context.push('/forgot-password');
                         },
                         child: Text(
                           'Forgot your password?',

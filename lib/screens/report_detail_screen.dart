@@ -1,5 +1,7 @@
 // lib/screens/report_detail_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:intl/intl.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:zeropoint/_core/config.dart';
@@ -34,7 +36,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text("Generating report..."), duration: Duration(seconds: 4)),
       );
-      // Chama o novo método do serviço
+
       final pdfBytes = await _apiService.downloadDetectionReport(detectionId);
       await FileSaver.instance.saveFile(
         name: "detection_report_$detectionId.pdf",
@@ -43,7 +45,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       );
     } catch(e) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Error downloading PDF: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Error downloading PDF: $e"), backgroundColor: MyColors.error_qcyber),
       );
     }
   }
@@ -68,9 +70,24 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
+
+                // ATUALIZADO: Tratamento de erro com botão de voltar
                 if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Error: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => context.pop(),
+                          child: const Text("Go Back"),
+                        )
+                      ],
+                    ),
+                  );
                 }
+
                 if (!snapshot.hasData) {
                   return const Center(child: Text("No details found.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
                 }
