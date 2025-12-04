@@ -342,9 +342,13 @@ class _MenuPageState extends State<MenuPage> {
                     icon: Icons.logout,
                     text: "Logout",
                     onTap: () async {
-                      // Usa o AuthService do Provider (buscado no build ou via context.read)
-                      final authService = Provider.of<AuthService>(context, listen: false);
+
+                      // 1. Instancia o serviço (ou pega se estiver usando injeção de dependência)
+                      final authService = AuthService();
+
+                      // 2. Chama o logout centralizado
                       await authService.logout(context);
+
 
                       // O GoRouter limpa a pilha e manda pro login
                       if (context.mounted) {

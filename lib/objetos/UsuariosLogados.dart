@@ -55,9 +55,5 @@ class UsuariosLogados extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Método auxiliar para logout (opcional, mas útil se chamado pela UI)
-  Future<void> logout() async {
-    limparUsuario();
-    // Nota: A limpeza do token físico (Storage) deve ser feita pelo AuthService
-  }
+
 }
