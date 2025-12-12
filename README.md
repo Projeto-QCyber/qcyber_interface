@@ -18,5 +18,5 @@ flutter pub get
 
 
 ```bash
-flutter build web --base-href=/qcyber/
+flutter build web --base-href=/qcyber/ -o ./build/qcyber/
 ```
