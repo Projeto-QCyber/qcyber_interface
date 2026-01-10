@@ -12,48 +12,70 @@ import 'package:zeropoint/screens/auth_screen.dart';
 import 'package:zeropoint/screens/reset_password_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Importante para datas em PT-BR
+import 'package:intl/date_symbol_data_local.dart'; // Importante para datas em PT-BR
+
+import 'package:zeropoint/_core/config.dart';
+import 'package:zeropoint/_core/my_colors.dart';
+import 'package:zeropoint/_core/app_router.dart'; // O arquivo que acabamos de criar
+
+import 'package:zeropoint/objetos/UsuariosLogados.dart';
+import 'package:zeropoint/services/auth_service.dart';
+import 'package:zeropoint/services/token_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa a formatação de datas (útil se usar DatePicker ou formatação de moeda)
+  await initializeDateFormatting('pt_BR', null);
+
+  // Instanciamos o AuthService aqui para injetá-lo no Provider
   final AuthService authService = AuthService();
 
   runApp(
     MultiProvider(
       providers: [
+        // O UsuariosLogados gerencia o estado da sessão na memória
         ChangeNotifierProvider(create: (context) => UsuariosLogados()),
+
+        // Injetamos os serviços para que qualquer tela possa acessá-los
+        Provider<AuthService>(create: (_) => authService),
+        Provider<TokenStorageService>(create: (_) => TokenStorageService()),
       ],
-      child: MyApp(authService: authService),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final AuthService authService;
-  const MyApp({super.key, required this.authService});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // Instanciamos nosso Roteador Inteligente
+    // Ele não precisa receber parâmetros aqui porque ele mesmo acessa o Provider/Storage internamente
+    final appRouter = AppRouter();
+
+    return MaterialApp.router( // <--- A MUDANÇA PRINCIPAL É AQUI
       title: Config.nomeDaAplicacao,
       debugShowCheckedModeBanner: false,
 
-
+      // Configuração de Idioma (PT-BR)
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('pt', 'BR'), // Português (Brasil)
-        // Adicione outras linguagens que você queira suportar no futuro
-        // Locale('en', 'US'), // Inglês
+        Locale('pt', 'BR'),
       ],
 
-
+      // Tema
       theme: ThemeData(
-        // Seu tema continua o mesmo...
         scaffoldBackgroundColor: MyColors.background_qcyber,
-        primaryColor: MyColors.background_qcyber,
+        primaryColor: MyColors.background_qcyber, // Ajuste conforme seu MyColors atual
         appBarTheme: AppBarTheme(
           backgroundColor: MyColors.primary_qcyber,
           titleTextStyle: TextStyle(
@@ -72,35 +94,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      // 2. ALTERADO: O ponto de entrada agora é a nossa tela de verificação
-      home: const AuthOrHomePage(),
-      // 3. NOVO: Adicione rotas para navegação limpa
-      routes: {
-        '/auth': (context) => const AuthScreen(),
-        '/home': (context) => const MenuPage(),
-      },
 
-      onGenerateRoute: (settings) {
-        // Verifica se a URL acessada é a de redefinir senha
-        if (settings.name != null &&
-            settings.name!.startsWith('/reset-password')) {
-          final uri = Uri.parse(settings.name!);
-          // Pega o valor do parâmetro 'token' da URL
-          final token = uri.queryParameters['token'];
-
-          if (token != null) {
-            // Se encontrou um token, cria a rota para a tela correta
-            return MaterialPageRoute(
-              builder: (context) => ResetPasswordScreen(token: token),
-            );
-          }
-        }
-        // Para qualquer outra rota, deixa o Flutter usar o comportamento padrão (o `routes` acima)
-        return null;
-      },
+      // Conectando o GoRouter ao Flutter
+      routerConfig: appRouter.router,
     );
   }
-
 }
-
-// A classe GerenciadorTelas pode ser removida se não for mais usada em outro lugar.

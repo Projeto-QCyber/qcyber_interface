@@ -1,4 +1,7 @@
+// lib/screens/ameacas_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:intl/intl.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
@@ -13,6 +16,7 @@ class AmeacasScreen extends StatefulWidget {
 }
 
 class _AmeacasScreenState extends State<AmeacasScreen> {
+  // Mantemos a instância local, assumindo que o AmeacaService já usa o AuthInterceptor internamente
   final AmeacaService _service = AmeacaService();
   late Future<List<Ameaca>> _ameacasFuture;
 
@@ -24,9 +28,9 @@ class _AmeacasScreenState extends State<AmeacasScreen> {
 
   Color _getColorForRisco(String risco) {
     switch (risco.toLowerCase()) {
-      case 'crítico':
+      case 'critical':
         return MyColors.error_qcyber;
-      case 'alto':
+      case 'high':
         return MyColors.warning_qcyber;
       default:
         return MyColors.textSecondary_qcyber;
@@ -53,14 +57,14 @@ class _AmeacasScreenState extends State<AmeacasScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildDetailRow("Dispositivo:", "${ameaca.dispositivoNome} (${ameaca.dispositivoHost})"),
-                _buildDetailRow("Data:", DateFormat('dd/MM/yyyy HH:mm').format(ameaca.dataDeteccao)),
-                _buildDetailRow("Nível de Risco:", ameaca.nivelRisco),
+                _buildDetailRow("Device:", "${ameaca.dispositivoNome} (${ameaca.dispositivoHost})"),
+                _buildDetailRow("Date:", DateFormat('dd/MM/yyyy HH:mm').format(ameaca.dataDeteccao)),
+                _buildDetailRow("Risk Level:", ameaca.nivelRisco),
                 const Divider(height: 24),
-                _buildSectionTitle("Análise (LLM)"),
+                _buildSectionTitle("Analysis (LLM)"),
                 Text(ameaca.explicacaoLLM, style: const TextStyle(color: MyColors.textSecondary_qcyber)),
                 const SizedBox(height: 16),
-                _buildSectionTitle("Ações Recomendadas"),
+                _buildSectionTitle("Recommended Actions"),
                 ...ameaca.acoesRecomendadas.map((acao) => Padding(
                   padding: const EdgeInsets.only(bottom: 4.0),
                   child: Text("• $acao", style: const TextStyle(color: MyColors.textSecondary_qcyber)),
@@ -70,8 +74,9 @@ class _AmeacasScreenState extends State<AmeacasScreen> {
           ),
           actions: [
             TextButton(
-              child: const Text("Fechar", style: TextStyle(color: MyColors.primary_qcyber)),
-              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Close", style: TextStyle(color: MyColors.primary_qcyber)),
+              // ATUALIZADO: Usando GoRouter para fechar o modal
+              onPressed: () => context.pop(),
             ),
           ],
         );
@@ -110,8 +115,9 @@ class _AmeacasScreenState extends State<AmeacasScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ameaças Detectadas'),
+        title: const Text('Detected Threats'),
         backgroundColor: MyColors.primary_qcyber,
+        // Ícone de voltar automático do AppBar funcionará com context.pop() implicitamente
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -130,10 +136,10 @@ class _AmeacasScreenState extends State<AmeacasScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
-                  return const Center(child: Text('Erro ao carregar ameaças.'));
+                  return const Center(child: Text('Error loading threats.'));
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('Nenhuma ameaça detectada.'));
+                  return const Center(child: Text('No threats detected.'));
                 }
 
                 final ameacas = snapshot.data!;

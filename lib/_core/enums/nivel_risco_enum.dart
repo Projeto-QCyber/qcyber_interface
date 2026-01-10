@@ -12,13 +12,13 @@ enum NivelRisco {
   /// Construtor de fábrica para criar um NivelRisco a partir de uma String da API.
   static NivelRisco fromString(String risco) {
     switch (risco.toLowerCase()) {
-      case 'baixo':
+      case 'low':
         return NivelRisco.baixo;
-      case 'medio':
+      case 'medium':
         return NivelRisco.medio;
-      case 'alto':
+      case 'high':
         return NivelRisco.alto;
-      case 'critico':
+      case 'critical':
         return NivelRisco.critico;
       default:
       // Se a API retornar um valor desconhecido, temos um fallback seguro.
@@ -61,15 +61,15 @@ enum NivelRisco {
   String get displayName {
     switch (this) {
       case NivelRisco.baixo:
-        return 'Baixo';
+        return 'Low';
       case NivelRisco.medio:
-        return 'Médio';
+        return 'Medium';
       case NivelRisco.alto:
-        return 'Alto';
+        return 'High';
       case NivelRisco.critico:
-        return 'Crítico';
+        return 'Critical';
       case NivelRisco.desconhecido:
-        return 'Desc.'; // Uma abreviação boa para o gráfico
+        return 'Unk.'; // Uma abreviação boa para o gráfico (Unknown)
     }
   }
 

@@ -28,10 +28,10 @@ class PieChartAtaques extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Tipos de Ameaças", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
+            const Text("Threat Types", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
             const SizedBox(height: 20),
             if (ataques.isEmpty)
-              const Center(heightFactor: 5, child: Text('Nenhum dado.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
+              const Center(heightFactor: 5, child: Text('No data.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
             else
               SizedBox(
                 height: 200,

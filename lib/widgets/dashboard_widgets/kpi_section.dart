@@ -24,13 +24,13 @@ class KpiSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _buildKpiCard('Detecções', kpis.totalDeteccoes.toString(), Icons.warning_amber, MyColors.error_qcyber, onTap: onDeteccoesTapped)),
+        Expanded(child: _buildKpiCard('Detections', kpis.totalDeteccoes.toString(), Icons.warning_amber, MyColors.error_qcyber, onTap: onDeteccoesTapped)),
         const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Ações Autom.', kpis.acoesExecutadas.toString(), Icons.shield, MyColors.textOnPrimary_qcyber, onTap: onAcoesTapped)),
+        Expanded(child: _buildKpiCard('Auto. Actions', kpis.acoesExecutadas.toString(), Icons.shield, MyColors.textOnPrimary_qcyber, onTap: onAcoesTapped)),
         const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Incidentes', kpis.incidentesCriados.toString(), Icons.assignment_late, Colors.orangeAccent, onTap: onIncidentesTapped)),
+        Expanded(child: _buildKpiCard('Incidents', kpis.incidentesCriados.toString(), Icons.assignment_late, Colors.orangeAccent, onTap: onIncidentesTapped)),
         const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Dispositivos', kpis.dispositivosAtivos.toString(), Icons.computer, MyColors.textOnPrimary_qcyber, onTap: onDispositivosTapped)),
+        Expanded(child: _buildKpiCard('Devices', kpis.dispositivosAtivos.toString(), Icons.computer, MyColors.textOnPrimary_qcyber, onTap: onDispositivosTapped)),
       ],
     );
   }

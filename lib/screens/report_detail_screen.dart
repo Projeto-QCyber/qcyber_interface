@@ -1,5 +1,7 @@
 // lib/screens/report_detail_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:intl/intl.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:zeropoint/_core/config.dart';
@@ -32,18 +34,18 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text("Gerando relatório específico..."), duration: Duration(seconds: 4)),
+        const SnackBar(content: Text("Generating report..."), duration: Duration(seconds: 4)),
       );
-      // Chama o novo método do serviço
+
       final pdfBytes = await _apiService.downloadDetectionReport(detectionId);
       await FileSaver.instance.saveFile(
-        name: "relatorio_deteccao_$detectionId.pdf",
+        name: "detection_report_$detectionId.pdf",
         bytes: pdfBytes,
         mimeType: MimeType.pdf,
       );
     } catch(e) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Erro ao baixar PDF: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Error downloading PDF: $e"), backgroundColor: MyColors.error_qcyber),
       );
     }
   }
@@ -53,7 +55,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
     return Scaffold(
       backgroundColor: MyColors.background_qcyber,
       appBar: AppBar(
-        title: const Text("Detalhes da Detecção"),
+        title: const Text("Detection Details"),
         backgroundColor: MyColors.primary_qcyber,
         titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: MyColors.textOnPrimary_qcyber),
@@ -68,11 +70,26 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
+
+                // ATUALIZADO: Tratamento de erro com botão de voltar
                 if (snapshot.hasError) {
-                  return Center(child: Text("Erro: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Error: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => context.pop(),
+                          child: const Text("Go Back"),
+                        )
+                      ],
+                    ),
+                  );
                 }
+
                 if (!snapshot.hasData) {
-                  return const Center(child: Text("Nenhum detalhe encontrado.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
+                  return const Center(child: Text("No details found.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
                 }
 
                 final detail = snapshot.data!;
@@ -83,11 +100,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                     children: [
                       _buildDetailCard(detail),
                       const SizedBox(height: 24),
-                      _buildSectionTitle("Análise (LLM)"),
+                      _buildSectionTitle("Analysis (LLM)"),
                       const SizedBox(height: 8),
                       Text(detail.explicacaoLLM, style: const TextStyle(color: MyColors.textSecondary_qcyber, height: 1.5)),
                       const SizedBox(height: 24),
-                      _buildSectionTitle("Ações Recomendadas"),
+                      _buildSectionTitle("Recommended Actions"),
                       const SizedBox(height: 8),
                       ...detail.acoesRecomendadas.map((acao) => Padding(
                         padding: const EdgeInsets.only(bottom: 4.0),
@@ -102,7 +119,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           ),
                           icon: const Icon(Icons.picture_as_pdf),
-                          label: const Text("Baixar Relatório do Dispositivo"),
+                          label: const Text("Download Report"),
                           onPressed: () {
                             _downloadSpecificReport(detail.id);
                           },
@@ -134,15 +151,15 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow("Ataque:", detail.tipoAtaque),
+            _buildDetailRow("Attack:", detail.tipoAtaque),
             const Divider(color: MyColors.border_qcyber),
-            _buildDetailRow("Dispositivo:", detail.nomeDispositivo),
+            _buildDetailRow("Device:", detail.nomeDispositivo),
             const Divider(color: MyColors.border_qcyber),
-            _buildDetailRow("Data:", DateFormat('dd/MM/yyyy HH:mm').format(detail.dataDeteccao)),
+            _buildDetailRow("Date:", DateFormat('dd/MM/yyyy HH:mm').format(detail.dataDeteccao)),
             const Divider(color: MyColors.border_qcyber),
-            _buildDetailRow("Status da Resposta:", detail.statusResposta),
+            _buildDetailRow("Response Status:", detail.statusResposta),
             const Divider(color: MyColors.border_qcyber),
-            _buildDetailRow("Nível de Risco:", detail.nivelRisco),
+            _buildDetailRow("Risk Level:", detail.nivelRisco),
           ],
         ),
       ),

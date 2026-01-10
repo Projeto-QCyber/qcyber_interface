@@ -35,7 +35,7 @@ class BarChartRiscos extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Incidentes por Risco",
+              Text("Incidents by Risk",
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -43,7 +43,7 @@ class BarChartRiscos extends StatelessWidget {
               SizedBox(height: 20),
               Center(
                 heightFactor: 5,
-                child: Text('Nenhum incidente.',
+                child: Text('No incidents.',
                     style: TextStyle(color: MyColors.textSecondary_qcyber)),
               ),
             ],
@@ -68,7 +68,7 @@ class BarChartRiscos extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Incidentes por Risco",
+            const Text("Incidents by Risk",
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

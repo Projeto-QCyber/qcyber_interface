@@ -23,10 +23,10 @@ class DataTableSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Histórico de Detecções Recentes", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
+            const Text("Recent Detection History", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
             const SizedBox(height: 8),
             if(deteccoes.isEmpty)
-              const Center(heightFactor: 3, child: Text('Nenhuma detecção recente para exibir no período.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
+              const Center(heightFactor: 3, child: Text('No recent detections to display for this period.', style: TextStyle(color: MyColors.textSecondary_qcyber)))
             else
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -34,9 +34,9 @@ class DataTableSection extends StatelessWidget {
                   headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber),
                   dataTextStyle: const TextStyle(color: MyColors.textSecondary_qcyber),
                   columns: const [
-                    DataColumn(label: Text('Data/Hora')),
-                    DataColumn(label: Text('Dispositivo')),
-                    DataColumn(label: Text('Ameaça')),
+                    DataColumn(label: Text('Date/Time')),
+                    DataColumn(label: Text('Device')),
+                    DataColumn(label: Text('Threat')),
                     DataColumn(label: Text('Status')),
                   ],
                   rows: deteccoes.map((deteccao) => DataRow(
