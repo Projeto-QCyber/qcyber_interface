@@ -1,12 +1,10 @@
 // lib/screens/auth_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // Importante para context.go e context.push
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/enums/verification_type_enum.dart';
 import 'package:zeropoint/_core/my_colors.dart';
-import 'package:zeropoint/screens/MenuPage.dart';
-import 'package:zeropoint/screens/user/forgot_password_screen.dart';
-import 'package:zeropoint/screens/verification_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -38,37 +36,49 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
+    // ======================================================
+    // MODO LOGIN
+    // ======================================================
     if (_isLoginMode) {
-      final result = await _authService.login(_emailController.text.trim(), _passwordController.text.trim());
+      final result = await _authService.login(
+          _emailController.text.trim(),
+          _passwordController.text.trim()
+      );
 
       if (!mounted) return;
 
       if (result['success']) {
+        // CASO 1: Precisa de 2FA
         if (result['requires_2fa']) {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => VerificationScreen(
-              verificationType: VerificationType.twoFactor,
-              tempToken: result['temp_token'],
-              email: _emailController.text.trim(),
-            ),
-          ));
-        } else {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MenuPage()));
+          context.push('/verify', extra: {
+            'verificationType': VerificationType.twoFactor,
+            'tempToken': result['temp_token'],
+            'email': _emailController.text.trim(),
+          });
+        }
+        // CASO 2: Login direto (Sucesso)
+        else {
+          // Use 'go' para limpar o histórico de login e ir para a raiz
+          context.go('/');
         }
       } else {
+        // CASO 3: Email não verificado (Erro 403)
         if (result['requires_email_verification'] == true) {
           _showError(result['error']);
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => VerificationScreen(
-              verificationType: VerificationType.email,
-              email: _emailController.text.trim(),
-            ),
-          ));
+
+          context.push('/verify', extra: {
+            'verificationType': VerificationType.email,
+            'email': _emailController.text.trim(),
+          });
         } else {
           _showError(result['error']);
         }
       }
-    } else { // Modo Registro
+    }
+    // ======================================================
+    // MODO REGISTRO
+    // ======================================================
+    else {
       final result = await _authService.register(
         nome: _nameController.text.trim(),
         email: _emailController.text.trim(),
@@ -78,18 +88,25 @@ class _AuthScreenState extends State<AuthScreen> {
       if (!mounted) return;
 
       if (result['success']) {
-        final verificationResult = await Navigator.of(context).push<bool>(MaterialPageRoute(
-          builder: (_) => VerificationScreen(
-            verificationType: VerificationType.email,
-            email: result['email'],
-          ),
-        ));
-        if (verificationResult == true) {
+        // Navega para verificação e aguarda o retorno (se o usuário voltar)
+        await context.push('/verify', extra: {
+          'verificationType': VerificationType.email,
+          'email': result['email'],
+        });
+
+        // Se o usuário voltar da tela de verificação, voltamos para a tela de Login
+        if (mounted) {
           setState(() {
             _isLoginMode = true;
             _nameController.clear();
             _confirmPasswordController.clear();
+            _passwordController.clear();
           });
+
+          // --- MENSAGEM TRADUZIDA AQUI ---
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Registration successful! Please log in after verifying your email.")),
+          );
         }
       } else {
         _showError(result['error']);
@@ -99,7 +116,6 @@ class _AuthScreenState extends State<AuthScreen> {
     if(mounted) setState(() => _isLoading = false);
   }
 
-  // ATUALIZADO: Helper de estilo para os inputs
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
     labelStyle: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.8)),
@@ -112,7 +128,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ATUALIZADO: Layout e estilo visual reincorporados
     final textStyle = const TextStyle(color: MyColors.textOnPrimary_qcyber, height: 1.5);
     final titleStyle = textStyle.copyWith(fontSize: 24, fontWeight: FontWeight.bold);
 
@@ -137,39 +152,37 @@ class _AuthScreenState extends State<AuthScreen> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(_isLoginMode ? "Bem-vindo" : "Criar Nova Conta", textAlign: TextAlign.center, style: titleStyle),
+                        child: Text(_isLoginMode ? "Welcome" : "Create New Account", textAlign: TextAlign.center, style: titleStyle),
                       ),
                       const SizedBox(height: 16),
                       if (!_isLoginMode) ...[
-                        TextFormField(controller: _nameController, style: textStyle, decoration: _inputDecoration("Nome Completo"), validator: (v) => v!.isEmpty ? 'Insira um nome' : null),
+                        TextFormField(controller: _nameController, style: textStyle, decoration: _inputDecoration("Full Name"), validator: (v) => v!.isEmpty ? 'Please enter a name' : null),
                         const SizedBox(height: 12),
                       ],
-                      TextFormField(controller: _emailController, style: textStyle, decoration: _inputDecoration("E-mail"), keyboardType: TextInputType.emailAddress, validator: (v) => v!.isEmpty || !v.contains('@') ? 'Insira um e-mail válido' : null),
+                      TextFormField(controller: _emailController, style: textStyle, decoration: _inputDecoration("Email"), keyboardType: TextInputType.emailAddress, validator: (v) => v!.isEmpty || !v.contains('@') ? 'Please enter a valid email' : null),
                       const SizedBox(height: 12),
-                      TextFormField(controller: _passwordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Senha"), validator: (v) => v!.length < 6 ? 'A senha precisa ter no mínimo 6 caracteres' : null),
+                      TextFormField(controller: _passwordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Password"), validator: (v) => v!.length < 6 ? 'Password must be at least 6 characters long' : null),
                       if (!_isLoginMode) ...[
                         const SizedBox(height: 12),
-                        TextFormField(controller: _confirmPasswordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Confirme a senha"), validator: (v) => v != _passwordController.text ? 'As senhas não coincidem' : null),
+                        TextFormField(controller: _confirmPasswordController, obscureText: true, style: textStyle, decoration: _inputDecoration("Confirm Password"), validator: (v) => v != _passwordController.text ? 'Passwords do not match' : null),
                       ],
                       const SizedBox(height: 24),
                       if (_isLoading) const Center(child: CircularProgressIndicator(color: Colors.white)) else ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: MyColors.background_qcyber, foregroundColor: MyColors.primary_qcyber, padding: const EdgeInsets.symmetric(vertical: 16)),
                         onPressed: _submit,
-                        child: Text(_isLoginMode ? "Entrar" : "Criar Conta", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
+                        child: Text(_isLoginMode ? "Sign In" : "Create Account", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       TextButton(
                         onPressed: () { if (_isLoading) return; setState(() => _isLoginMode = !_isLoginMode); },
-                        child: Text(_isLoginMode ? "Ainda não tem conta? Crie uma" : "Já tem uma conta? Entre", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
+                        child: Text(_isLoginMode ? "Don't have an account? Sign up" : "Already have an account? Sign in", style: TextStyle(color: MyColors.textOnPrimary_qcyber)),
                       ),
                       TextButton(
                         onPressed: () {
                           if (_isLoading) return;
-                          Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const ForgotPasswordScreen())
-                          );
+                          context.push('/forgot-password');
                         },
                         child: Text(
-                          'Esqueceu sua senha?',
+                          'Forgot your password?',
                           style: TextStyle(color: MyColors.textOnPrimary_qcyber.withOpacity(0.7)),
                         ),
                       ),
@@ -180,7 +193,7 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
 
             const SizedBox(height: 8),
-            Text('Versão 0.1.0', textAlign: TextAlign.center, style: TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 12)),
+            Text('Version 0.1.0', textAlign: TextAlign.center, style: TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 12)),
             const SizedBox(height: 20),
           ],
         ),

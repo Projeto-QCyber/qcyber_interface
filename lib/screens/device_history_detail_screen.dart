@@ -1,14 +1,17 @@
-// lib/screens/device_history_detail_screen.dart (Completo e Final)
+// lib/screens/device_history_detail_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:intl/intl.dart';
+import 'package:file_saver/file_saver.dart';
+
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/my_colors.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:zeropoint/objetos/detection_history_item.dart';
 import 'package:zeropoint/objetos/dispositivo.dart';
 import 'package:zeropoint/services/history_service.dart';
 import 'package:zeropoint/services/report_service.dart';
-import 'report_detail_screen.dart';
+// Removemos: import 'report_detail_screen.dart'; (O Router resolve isso agora)
 
 class DeviceHistoryDetailScreen extends StatefulWidget {
   final Dispositivo dispositivo;
@@ -19,7 +22,6 @@ class DeviceHistoryDetailScreen extends StatefulWidget {
 }
 
 class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
-  // CORREÇÃO: Instanciamos os DOIS serviços necessários
   final HistoryService _historyService = HistoryService();
   final ReportService _reportService = ReportService();
 
@@ -28,7 +30,6 @@ class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Usamos o HistoryService para buscar o histórico
     _historyFuture = _historyService.getHistory("by-device", widget.dispositivo.id);
   }
 
@@ -36,19 +37,19 @@ class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text("Gerando relatório...")),
+        const SnackBar(content: Text("Generating report...")),
       );
-      // CORREÇÃO: Chamamos a função a partir do ReportService
+
       final pdfBytes = await _reportService.downloadDeviceReport(widget.dispositivo.id);
 
       await FileSaver.instance.saveFile(
-        name: "relatorio_dispositivo_${widget.dispositivo.id}.pdf",
+        name: "device_report_${widget.dispositivo.id}.pdf",
         bytes: pdfBytes,
         mimeType: MimeType.pdf,
       );
     } catch(e) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Erro ao gerar PDF: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Error generating PDF: $e"), backgroundColor: MyColors.error_qcyber),
       );
     }
   }
@@ -62,7 +63,9 @@ class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
         backgroundColor: MyColors.primary_qcyber,
         titleTextStyle: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20, fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: MyColors.textOnPrimary_qcyber),
-        actions: [ Padding( padding: const EdgeInsets.all(8.0), child: Image.asset(Config.logoBranca, width: 100), ), ],
+        actions: [
+          Padding( padding: const EdgeInsets.all(8.0), child: Image.asset(Config.logoBranca, width: 100)),
+        ],
       ),
       body: Column(
         children: [
@@ -75,10 +78,10 @@ class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text("Erro: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
+                  return Center(child: Text("Error: ${snapshot.error}", style: const TextStyle(color: MyColors.textSecondary_qcyber)));
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("Nenhuma detecção encontrada para este dispositivo.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
+                  return const Center(child: Text("No detections found for this device.", style: TextStyle(color: MyColors.textPrimary_qcyber)));
                 }
 
                 final historyItems = snapshot.data!;
@@ -92,9 +95,8 @@ class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: MyColors.border_qcyber)),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ReportDetailScreen(detectionId: item.id),
-                        )),
+                        // ATUALIZADO: Navegação via rota nomeada com ID
+                        onTap: () => context.push('/reports/${item.id}'),
                         child: ListTile(
                           leading: const Icon(Icons.shield_outlined, color: MyColors.primary_qcyber),
                           title: Text(item.tipoAtaque, style: const TextStyle(fontWeight: FontWeight.bold, color: MyColors.textPrimary_qcyber)),
@@ -129,10 +131,10 @@ class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Histórico de Detecções", style: TextStyle(color: MyColors.textPrimary_qcyber, fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("Detection History", style: TextStyle(color: MyColors.textPrimary_qcyber, fontSize: 18, fontWeight: FontWeight.bold)),
               ElevatedButton.icon(
                 icon: const Icon(Icons.picture_as_pdf, size: 18),
-                label: const Text("Gerar PDF"),
+                label: const Text("Generate PDF"),
                 onPressed: _downloadReport,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: MyColors.primary_qcyber,
@@ -142,7 +144,7 @@ class _DeviceHistoryDetailScreenState extends State<DeviceHistoryDetailScreen> {
             ],
           ),
           const Divider(height: 24, color: MyColors.border_qcyber),
-          Text("Host: ${widget.dispositivo.host} | Local: ${widget.dispositivo.localizacao ?? 'N/A'}", style: const TextStyle(color: MyColors.textSecondary_qcyber)),
+          Text("Host: ${widget.dispositivo.host} | Location: ${widget.dispositivo.localizacao ?? 'N/A'}", style: const TextStyle(color: MyColors.textSecondary_qcyber)),
         ],
       ),
     );

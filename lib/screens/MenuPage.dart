@@ -1,27 +1,28 @@
 // lib/screens/MenuPage.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // <--- IMPORTANTE: GoRouter
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/controllers/dashboard_action_handler.dart';
 import 'package:zeropoint/objetos/UsuariosLogados.dart';
 import 'package:zeropoint/objetos/dashboard_summary.dart';
-import 'package:zeropoint/screens/auth_screen.dart';
-import 'package:zeropoint/screens/device_management_screen.dart';
-import 'package:zeropoint/screens/generic_history_screen.dart';
-import 'package:zeropoint/screens/user/user_list_screen.dart';
-import 'package:zeropoint/screens/settings_screen.dart';
+// Note que removemos as importações das telas (ex: auth_screen, user_list)
+// pois o GoRouter resolve isso pelas strings de rota.
+import 'package:zeropoint/screens/generic_history_screen.dart'; // Necessário apenas para o Enum HistoryFilterType
 import 'package:zeropoint/services/auth_service.dart';
 import 'package:zeropoint/services/dashboard_service.dart';
+
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_dispositivos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/bar_chart_riscos.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/kpi_section.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/line_chart_detections.dart';
 import 'package:zeropoint/widgets/dashboard_widgets/pie_chart_ataques.dart';
 import 'package:zeropoint/widgets/dialogs/connection_error_dialog.dart';
-// ADICIONE A IMPORTAÇÃO DO NOVO WIDGET
 import 'package:zeropoint/widgets/dialogs/custom_date_range_picker.dart';
 
 enum DateRangePreset { last24h, last7d, last30d, custom }
@@ -34,8 +35,11 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
+  // O DashboardService não estava no Provider global, então mantemos a instância local por enquanto.
+  // Idealmente, também deveria ir para o Provider no main.dart.
   final DashboardService _dashboardService = DashboardService();
-  final AuthService _authService = AuthService();
+
+  // O AuthService agora será recuperado do context, não instanciado aqui.
 
   Future<DashboardSummary>? _dashboardFuture;
 
@@ -47,9 +51,14 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
+
+    // A chamada de fetchAndSetUser aqui é uma segurança extra.
+    // Como estamos no initState, usamos addPostFrameCallback.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _authService.fetchAndSetUser(context);
+      final authService = Provider.of<AuthService>(context, listen: false);
+      authService.fetchAndSetUser(context);
     });
+
     _fetchDashboardData();
   }
 
@@ -59,7 +68,7 @@ class _MenuPageState extends State<MenuPage> {
 
     switch (_selectedPreset) {
       case DateRangePreset.last24h:
-        break; // A API usará o padrão de 24h se for nulo
+        break;
       case DateRangePreset.last7d:
         endDate = DateTime.now();
         startDate = endDate.subtract(const Duration(days: 7));
@@ -70,7 +79,6 @@ class _MenuPageState extends State<MenuPage> {
         break;
       case DateRangePreset.custom:
         startDate = _customStartDate;
-        // Adiciona 1 dia para incluir o dia inteiro na consulta do backend
         endDate = _customEndDate?.add(const Duration(days: 1));
         break;
     }
@@ -89,7 +97,6 @@ class _MenuPageState extends State<MenuPage> {
     }
   }
 
-  // MÉTODO ATUALIZADO PARA USAR O NOVO WIDGET
   Future<void> _selectCustomDateRange(BuildContext context) async {
     final picked = await showDialog<DateTimeRange>(
       context: context,
@@ -145,10 +152,10 @@ class _MenuPageState extends State<MenuPage> {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       ConnectionErrorDialog.show(context, onTryAgain: _fetchDashboardData);
                     });
-                    return const Center(child: Text('Tentando reconectar...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
+                    return const Center(child: Text('Attempting to reconnect...', style: TextStyle(color: MyColors.textSecondary_qcyber)));
                   }
 
-                  if (!snapshot.hasData) { return const Center(child: Text('Nenhum dado encontrado.', style: TextStyle(color: MyColors.textPrimary_qcyber))); }
+                  if (!snapshot.hasData) { return const Center(child: Text('No data found.', style: TextStyle(color: MyColors.textPrimary_qcyber))); }
 
                   final dashboardData = snapshot.data!;
                   return Stack(
@@ -220,17 +227,17 @@ class _MenuPageState extends State<MenuPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildFilterChip(DateRangePreset.last24h, 'Últimas 24h'),
+            _buildFilterChip(DateRangePreset.last24h, 'Last 24h'),
             const SizedBox(width: 8),
-            _buildFilterChip(DateRangePreset.last7d, 'Últimos 7 dias'),
+            _buildFilterChip(DateRangePreset.last7d, 'Last 7 days'),
             const SizedBox(width: 8),
-            _buildFilterChip(DateRangePreset.last30d, 'Últimos 30 dias'),
+            _buildFilterChip(DateRangePreset.last30d, 'Last 30 days'),
             const SizedBox(width: 8),
             ActionChip(
               label: Text(
                 _selectedPreset == DateRangePreset.custom && _customStartDate != null
                     ? '${DateFormat('dd/MM/yy').format(_customStartDate!)} - ${DateFormat('dd/MM/yy').format(_customEndDate!)}'
-                    : 'Personalizado',
+                    : 'Custom',
                 style: const TextStyle(color: MyColors.textPrimary_qcyber),
               ),
               backgroundColor: _selectedPreset == DateRangePreset.custom ? MyColors.primary_qcyber.withOpacity(0.7) : MyColors.card_qcyber,
@@ -261,6 +268,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildDrawer(BuildContext context) {
+    // Usamos o Provider para obter dados do usuário e o serviço de Auth
     return Consumer<UsuariosLogados>(
         builder: (context, userProvider, child) {
           return Drawer(
@@ -276,54 +284,76 @@ class _MenuPageState extends State<MenuPage> {
                     children: [
                       Image.asset(Config.logoBranca, height: 40),
                       const SizedBox(height: 16),
-                      Text(userProvider.nome ?? 'Menu de Navegação', style: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20)),
+                      Text(userProvider.nome.isNotEmpty ? userProvider.nome : 'Navigation Menu', style: const TextStyle(color: MyColors.textOnPrimary_qcyber, fontSize: 20)),
                     ],
                   ),
                 ),
-                _buildDrawerItem(icon: Icons.dashboard, text: "Dashboard", onTap: () { Navigator.pop(context); }),
+
+                // --- NAVEGAÇÃO COM GO_ROUTER ---
+                // Importante: No GoRouter, geralmente não precisamos de pop() antes do push() se usarmos go(),
+                // mas para manter o Drawer fechado ao voltar, o context.pop() é útil.
+
+                _buildDrawerItem(
+                    icon: Icons.dashboard,
+                    text: "Dashboard",
+                    onTap: () {
+                      context.pop(); // Fecha o drawer
+                      // Já estamos na home, não faz nada ou recarrega
+                    }
+                ),
                 _buildDrawerItem(
                     icon: Icons.dns,
-                    text: "Dispositivos",
+                    text: "Devices",
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const DeviceManagementScreen()));
+                      context.pop();
+                      context.push('/devices'); // <--- ROTA NOMEADA
                     }
                 ),
                 _buildDrawerItem(
                     icon: Icons.shield_outlined,
-                    text: "Histórico por Ameaça",
+                    text: "History by Threat",
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const GenericHistoryScreen(filterType: HistoryFilterType.threat)));
+                      context.pop();
+                      // Passamos o tipo de filtro como objeto 'extra'
+                      context.push('/history', extra: {'filterType': HistoryFilterType.threat});
                     }
                 ),
                 if (userProvider.isAdmin) ...[
                   const Divider(color: MyColors.border_qcyber),
                   _buildDrawerItem(
                       icon: Icons.people,
-                      text: "Gestão de Usuários",
+                      text: "User Management",
                       onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const UserListScreen()));
+                        context.pop();
+                        context.push('/users'); // <--- ROTA NOMEADA
                       }
                   ),
                   _buildDrawerItem(
                       icon: Icons.settings,
-                      text: "Parâmetros do Sistema",
+                      text: "System Parameters",
                       onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+                        context.pop();
+                        context.push('/settings'); // <--- ROTA NOMEADA
                       }
                   ),
                 ],
                 const Divider(color: MyColors.border_qcyber),
-                _buildDrawerItem(icon: Icons.logout, text: "Sair",
-                    onTap: () {
-                      _authService.logout(context);
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const AuthScreen()),
-                            (route) => false,
-                      );
+                _buildDrawerItem(
+                    icon: Icons.logout,
+                    text: "Logout",
+                    onTap: () async {
+
+                      // 1. Instancia o serviço (ou pega se estiver usando injeção de dependência)
+                      final authService = AuthService();
+
+                      // 2. Chama o logout centralizado
+                      await authService.logout(context);
+
+
+                      // O GoRouter limpa a pilha e manda pro login
+                      if (context.mounted) {
+                        context.go('/login');
+                      }
                     }),
               ],
             ),
