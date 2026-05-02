@@ -1,8 +1,8 @@
 class Config {
   /// -> PRODUCAO
-  // static const String apiUrl = 'https://teste.lesc.ufc.br/qcyberapi';
+  // static const String apiUrl = 'https://teste.lesc.ufc.br/api';
   /// -> DEV
-  static const String apiUrl = 'http://127.0.0.1:4545/qcyberapi';
+  static const String apiUrl = 'http://127.0.0.1:4545/api';
 
 
   /// -> LOGO DO SISTEMA
