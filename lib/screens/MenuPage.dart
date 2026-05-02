@@ -170,7 +170,7 @@ class _MenuPageState extends State<MenuPage> {
                             KpiSection(
                               kpis: dashboardData.kpis,
                               onDeteccoesTapped: () => actionHandler.showDeteccoesDetails(kpiCount: dashboardData.kpis.totalDeteccoes, startDate: startDate, endDate: endDate),
-                              onAcoesTapped: () => actionHandler.showAcoesDetails(kpiCount: dashboardData.kpis.acoesExecutadas, startDate: startDate, endDate: endDate),
+                              // onAcoesTapped: () => actionHandler.showAcoesDetails(kpiCount: dashboardData.kpis.acoesExecutadas, startDate: startDate, endDate: endDate),
                               onIncidentesTapped: () => actionHandler.showIncidentesDetails(kpiCount: dashboardData.kpis.incidentesCriados, startDate: startDate, endDate: endDate),
                               onDispositivosTapped: () => actionHandler.showDispositivosDetails(kpiCount: dashboardData.kpis.dispositivosAtivos),
                             ),

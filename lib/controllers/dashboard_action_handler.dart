@@ -47,7 +47,7 @@ class DashboardActionHandler {
   }) async {
     // Como criamos a tela 'AmeacasScreen', vamos navegar direto para ela
     // em vez de abrir um Dialog. A tela já busca os dados sozinha.
-    context.push('/threats');
+    // context.push('/threats');
 
     // OBS: Se quisesse usar o Histórico Genérico com filtro, seria:
     // context.push('/history', extra: {'filterType': HistoryFilterType.threat});
@@ -55,7 +55,7 @@ class DashboardActionHandler {
 
   Future<void> showDispositivosDetails({required int kpiCount}) async {
     // Navega direto para a tela de Gestão de Dispositivos
-    context.push('/devices');
+    // context.push('/devices');
   }
 
   // ===========================================================================
@@ -67,31 +67,31 @@ class DashboardActionHandler {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Automated Actions", icon: Icons.shield, iconColor: MyColors.textOnPrimary_qcyber, children: []);
-      return;
-    }
-
-    _showLoadingIndicator();
-    try {
-      final details = await dashboardService.fetchAcoesDetails(startDate: startDate, endDate: endDate);
-      _hideLoadingIndicator();
-
-      KpiDetailsDialog.show(
-        context,
-        title: "Recent Automated Actions",
-        icon: Icons.shield,
-        iconColor: MyColors.textOnPrimary_qcyber,
-        children: details.map((acao) => KpiDetailRow(
-          icon: Icons.check_circle,
-          iconColor: MyColors.textOnPrimary_qcyber,
-          title: acao.nomeAcao,
-        )).toList(),
-      );
-    } catch (e) {
-      _hideLoadingIndicator();
-      ConnectionErrorDialog.show(context, onTryAgain: () => showAcoesDetails(kpiCount: kpiCount, startDate: startDate, endDate: endDate));
-    }
+    // if (kpiCount == 0) {
+    //   KpiDetailsDialog.show(context, title: "Automated Actions", icon: Icons.shield, iconColor: MyColors.textOnPrimary_qcyber, children: []);
+    //   return;
+    // }
+    //
+    // _showLoadingIndicator();
+    // try {
+    //   final details = await dashboardService.fetchAcoesDetails(startDate: startDate, endDate: endDate);
+    //   _hideLoadingIndicator();
+    //
+    //   KpiDetailsDialog.show(
+    //     context,
+    //     title: "Recent Automated Actions",
+    //     icon: Icons.shield,
+    //     iconColor: MyColors.textOnPrimary_qcyber,
+    //     children: details.map((acao) => KpiDetailRow(
+    //       icon: Icons.check_circle,
+    //       iconColor: MyColors.textOnPrimary_qcyber,
+    //       title: acao.nomeAcao,
+    //     )).toList(),
+    //   );
+    // } catch (e) {
+    //   _hideLoadingIndicator();
+    //   ConnectionErrorDialog.show(context, onTryAgain: () => showAcoesDetails(kpiCount: kpiCount, startDate: startDate, endDate: endDate));
+    // }
   }
 
   Future<void> showIncidentesDetails({
@@ -99,53 +99,53 @@ class DashboardActionHandler {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    if (kpiCount == 0) {
-      KpiDetailsDialog.show(context, title: "Recent Incidents", icon: Icons.assignment_late, iconColor: MyColors.orange_qcyber, children: []);
-      return;
-    }
-
-    _showLoadingIndicator();
-    try {
-      final details = await dashboardService.fetchIncidentesDetails(startDate: startDate, endDate: endDate);
-      _hideLoadingIndicator();
-      KpiDetailsDialog.show(
-        context,
-        title: "Recent Incidents",
-        icon: Icons.assignment_late,
-        iconColor: MyColors.orange_qcyber,
-        children: details.map((i) {
-          final nivelRisco = NivelRisco.fromString(i.nivelRisco);
-
-          return KpiDetailRow(
-            icon: Icons.flag_outlined,
-            iconColor: nivelRisco.textColor,
-            title: i.titulo,
-            trailing: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: 80,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                decoration: BoxDecoration(
-                  color: nivelRisco.backgroundColor,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Text(
-                  nivelRisco.displayName,
-                  style: TextStyle(
-                    color: nivelRisco.textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      );
-    } catch (e) {
-      _hideLoadingIndicator();
-      ConnectionErrorDialog.show(context, onTryAgain: () => showIncidentesDetails(kpiCount: kpiCount, startDate: startDate, endDate: endDate));
-    }
+    // if (kpiCount == 0) {
+    //   KpiDetailsDialog.show(context, title: "Recent Incidents", icon: Icons.assignment_late, iconColor: MyColors.orange_qcyber, children: []);
+    //   return;
+    // }
+    //
+    // _showLoadingIndicator();
+    // try {
+    //   final details = await dashboardService.fetchIncidentesDetails(startDate: startDate, endDate: endDate);
+    //   _hideLoadingIndicator();
+    //   KpiDetailsDialog.show(
+    //     context,
+    //     title: "Recent Incidents",
+    //     icon: Icons.assignment_late,
+    //     iconColor: MyColors.orange_qcyber,
+    //     children: details.map((i) {
+    //       final nivelRisco = NivelRisco.fromString(i.nivelRisco);
+    //
+    //       return KpiDetailRow(
+    //         icon: Icons.flag_outlined,
+    //         iconColor: nivelRisco.textColor,
+    //         title: i.titulo,
+    //         trailing: Padding(
+    //           padding: const EdgeInsets.all(8.0),
+    //           child: Container(
+    //             width: 80,
+    //             alignment: Alignment.center,
+    //             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+    //             decoration: BoxDecoration(
+    //               color: nivelRisco.backgroundColor,
+    //               borderRadius: BorderRadius.circular(8.0),
+    //             ),
+    //             child: Text(
+    //               nivelRisco.displayName,
+    //               style: TextStyle(
+    //                 color: nivelRisco.textColor,
+    //                 fontWeight: FontWeight.bold,
+    //                 fontSize: 12,
+    //               ),
+    //             ),
+    //           ),
+    //         ),
+    //       );
+    //     }).toList(),
+    //   );
+    // } catch (e) {
+    //   _hideLoadingIndicator();
+    //   ConnectionErrorDialog.show(context, onTryAgain: () => showIncidentesDetails(kpiCount: kpiCount, startDate: startDate, endDate: endDate));
+    // }
   }
 }

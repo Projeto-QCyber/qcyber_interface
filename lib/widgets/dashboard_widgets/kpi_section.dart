@@ -7,7 +7,7 @@ class KpiSection extends StatelessWidget {
   final Kpis kpis;
   // NOVAS PROPRIEDADES: Funções de callback para cada clique
   final VoidCallback onDeteccoesTapped;
-  final VoidCallback onAcoesTapped;
+  // final VoidCallback onAcoesTapped;
   final VoidCallback onIncidentesTapped;
   final VoidCallback onDispositivosTapped;
 
@@ -15,7 +15,7 @@ class KpiSection extends StatelessWidget {
     super.key,
     required this.kpis,
     required this.onDeteccoesTapped,
-    required this.onAcoesTapped,
+    // required this.onAcoesTapped,
     required this.onIncidentesTapped,
     required this.onDispositivosTapped,
   });
@@ -26,8 +26,8 @@ class KpiSection extends StatelessWidget {
       children: [
         Expanded(child: _buildKpiCard('Detections', kpis.totalDeteccoes.toString(), Icons.warning_amber, MyColors.error_qcyber, onTap: onDeteccoesTapped)),
         const SizedBox(width: 12),
-        Expanded(child: _buildKpiCard('Auto. Actions', kpis.acoesExecutadas.toString(), Icons.shield, MyColors.textOnPrimary_qcyber, onTap: onAcoesTapped)),
-        const SizedBox(width: 12),
+        // Expanded(child: _buildKpiCard('Auto. Actions', kpis.acoesExecutadas.toString(), Icons.shield, MyColors.textOnPrimary_qcyber, onTap: onAcoesTapped)),
+        // const SizedBox(width: 12),
         Expanded(child: _buildKpiCard('Incidents', kpis.incidentesCriados.toString(), Icons.assignment_late, Colors.orangeAccent, onTap: onIncidentesTapped)),
         const SizedBox(width: 12),
         Expanded(child: _buildKpiCard('Devices', kpis.dispositivosAtivos.toString(), Icons.computer, MyColors.textOnPrimary_qcyber, onTap: onDispositivosTapped)),
