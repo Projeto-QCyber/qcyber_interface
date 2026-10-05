@@ -7,7 +7,7 @@ import 'package:zeropoint/_core/config.dart';
 import 'package:zeropoint/_core/my_colors.dart';
 import 'package:zeropoint/objetos/UsuariosLogados.dart';
 import 'package:zeropoint/screens/MenuPage.dart';
-import 'package:zeropoint/screens/auth_or_home_page.dart';
+// import 'package:zeropoint/screens/auth_or_home_page.dart';
 import 'package:zeropoint/screens/auth_screen.dart';
 import 'package:zeropoint/screens/reset_password_screen.dart';
 import 'package:zeropoint/services/auth_service.dart';
